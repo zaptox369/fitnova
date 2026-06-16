@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitNova — Holistic Fitness & Wellness Ecosystem</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="fitness.css">
+</head>
+
+<body>
+
+  <!-- Page-Wide Ambient Orbital Background -->
+  <div class="bg-orbitals">
+    <div class="orbital-ring ring-1"></div>
+    <div class="orbital-ring ring-2"></div>
+    <div class="orbital-ring ring-3"></div>
+    <div class="orbital-ring ring-4"></div>
+    <div class="orbital-ring ring-5"></div>
+    <div class="orbital-ring ring-6"></div>
+    <div class="orbital-ring ring-7"></div>
+    <div class="orbital-ring ring-8"></div>
+  </div>
+
+  <!-- Custom Mouse Follow Cursor -->
+  <div class="cursor" id="cursor"></div>
+
+  <!-- Navigation -->
+  <nav>
+    <div class="logo">FIT<span>NOVA</span></div>
+    <ul>
+      <li><a href="#programs">Programs</a></li>
+      <li><a href="#workout-generator">Workout Gen</a></li>
+      <li><a href="#dashboard">Health Stats</a></li>
+      <li><a href="#diet">Nutrition</a></li>
+      <li><a href="#mindfulness">Mindfulness</a></li>
+      <li><a href="#gyms">Locate Activity</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#" class="nav-cta" onclick="openAuthModal(event, 'login')">Login / Join</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-text">
+      <div class="hero-tag">Est. 2019 · Your Health, Unified</div>
+      <h1>
+        Transform
+        <em>Your Life</em>
+        Inside Out.
+      </h1>
+      <p class="hero-desc">
+        Holistic training, science-backed nutrition, mental wellness, and intelligent tracking. Achieve your fitness targets anywhere, anytime.
+      </p>
+      <div class="hero-actions">
+        <a href="#workout-generator" class="btn-primary">Generate Workout</a>
+        <a href="#pricing" class="btn-ghost">View Plans</a>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-circle"></div>
+      <div class="hero-circle hero-circle-2"></div>
+
+      <div class="stats-float right">
+        <div class="hero-stat-block">
+          <div class="num">98%</div>
+          <div class="label">Success Rate</div>
+        </div>
+        <div class="hero-stat-block">
+          <div class="num">24/7</div>
+          <div class="label">AI Coach</div>
+        </div>
+      </div>
+
+      <div class="stats-float left">
+        <div class="hero-stat-block">
+          <div class="num">100+</div>
+          <div class="label">Workout Paths</div>
+        </div>
+        <div class="hero-stat-block">
+          <div class="num">10K+</div>
+          <div class="label">Meals Logged</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Marquee Scroll -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span>HOME CALISTHENICS</span> <span class="bullet">◆</span> <span>HIIT BLAZE</span> <span class="bullet">◆</span> <span>STRENGTH BUILD</span>
+      <span class="bullet">◆</span> <span>MINDFUL YOGA & FLOW</span> <span class="bullet">◆</span> <span>NUTRITION COACHING</span> <span class="bullet">◆</span>
+      <span>BREATHWORK & FOCUS</span> <span class="bullet">◆</span>
+      <span>HOME CALISTHENICS</span> <span class="bullet">◆</span> <span>HIIT BLAZE</span> <span class="bullet">◆</span> <span>STRENGTH BUILD</span>
+      <span class="bullet">◆</span> <span>MINDFUL YOGA & FLOW</span> <span class="bullet">◆</span> <span>NUTRITION COACHING</span> <span class="bullet">◆</span>
+      <span>BREATHWORK & FOCUS</span> <span class="bullet">◆</span>
+    </div>
+  </div>
+
+  <!-- Programs Section -->
+  <section class="section" id="programs">
+    <div class="section-label">What We Offer</div>
+    <h2 class="section-title">Our Holistic Training Programs</h2>
+    <div class="programs-grid">
+      <div class="program-card" style="background-image: url('https://images.pexels.com/photos/32610333/pexels-photo-32610333.jpeg');">
+        <div class="program-num">01</div>
+        <div class="program-name">Home Calisthenics</div>
+        <p class="program-desc">No equipment, full body progression. Master your own bodyweight with progressive calisthenics built for raw functional power.</p>
+        <div class="program-meta"><span>⏱ 45 min</span> <span>🔥 Beginner Friendly</span></div>
+      </div>
+      <div class="program-card" style="background-image: url('https://images.pexels.com/photos/1954524/pexels-photo-1954524.jpeg');">
+        <div class="program-num">02</div>
+        <div class="program-name">HIIT Cardio Blaze</div>
+        <p class="program-desc">High-intensity interval sessions designed to accelerate cardiovascular threshold and maximize metabolic calorie burn.</p>
+        <div class="program-meta"><span>⏱ 30 min</span> <span>🔥 Intermediate</span></div>
+      </div>
+      <div class="program-card" style="background-image: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80');">
+        <div class="program-num">03</div>
+        <div class="program-name">Athletic Strength</div>
+        <p class="program-desc">Progressive resistance training focused on compound movements to improve muscle density, bone strength, and athletic posture.</p>
+        <div class="program-meta"><span>⏱ 60 min</span> <span>🔥 All Levels</span></div>
+      </div>
+      <div class="program-card" style="background-image: url('https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&q=80');">
+        <div class="program-num">04</div>
+        <div class="program-name">Yoga & Mobility Flow</div>
+        <p class="program-desc">Increase active flexibility, balance joint mechanics, and clear mental stress through fluid yoga vinyasas and mobility work.</p>
+        <div class="program-meta"><span>⏱ 50 min</span> <span>🔥 All Levels</span></div>
+      </div>
+      <div class="program-card" style="background-image: url('https://s7ap1.scene7.com/is/image/aia/benefits-of-breathwork?qlt=85&wid=1024&ts=1731295173034&dpr=off');">
+        <div class="program-num">05</div>
+        <div class="program-name">Breathwork & Focus</div>
+        <p class="program-desc">Regulate nervous system stress, reduce mental fatigue, and improve cognitive flow states with guided deep breathing techniques.</p>
+        <div class="program-meta"><span>⏱ 15 min</span> <span>🔥 Beginner Friendly</span></div>
+      </div>
+      <div class="program-card" style="background-image: url('https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&q=80');">
+        <div class="program-num">06</div>
+        <div class="program-name">Nutrition Optimization</div>
+        <p class="program-desc">Master macro targets, track dietary habits, and receive automated meal plan shifts to feed your lean recovery cleanly.</p>
+        <div class="program-meta"><span>⏱ Ongoing</span> <span>🔥 All Levels</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Platform Stats -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="big">50<span>K+</span></div>
+      <div class="small">Active Users</div>
+    </div>
+    <div class="stat-item">
+      <div class="big">1<span>M+</span></div>
+      <div class="small">Workouts Completed</div>
+    </div>
+    <div class="stat-item">
+      <div class="big">12<span>+</span></div>
+      <div class="small">Certified Health Mentors</div>
+    </div>
+    <div class="stat-item">
+      <div class="big">99<span>%</span></div>
+      <div class="small">Goal Accomplishment</div>
+    </div>
+  </div>
+
+  <!-- Mentors Section -->
+  <section class="section" id="trainers">
+    <div class="section-label">Our Mentors</div>
+    <h2 class="section-title">Online Health & Wellness Coaches</h2>
+    <div class="trainers-grid">
+      <div class="trainer-card">
+        <div class="trainer-avatar" style="background: #1c1210; background-image: url('https://static.vecteezy.com/system/resources/thumbnails/046/836/942/small/young-bangladeshi-male-fitness-trainer-in-modern-gym-environment-suitable-for-health-and-wellness-promotions-exercise-tutorials-and-gym-advertisements-photo.jpg'); background-size: cover; background-position: center;">
+          <div class="trainer-initials">MR</div>
+        </div>
+        <div class="trainer-info">
+          <div class="trainer-name">Marcus Rivera</div>
+          <div class="trainer-role">Strength & Conditioning Coach</div>
+          <p class="trainer-spec">BS in Exercise Science. Specialist in functional hypertrophy and progressive overload home training programs.</p>
+        </div>
+      </div>
+      <div class="trainer-card">
+        <div class="trainer-avatar" style="background: #0f1a14; background-image: url('https://t3.ftcdn.net/jpg/05/62/09/28/360_F_562092860_mWJBNRqTg4rarfoJaSdkaLlfy1dkrP33.jpg'); background-size: cover; background-position: center;">
+          <div class="trainer-initials">SK</div>
+        </div>
+        <div class="trainer-info">
+          <div class="trainer-name">Sara Kim</div>
+          <div class="trainer-role">Yoga & Mindfulness Instructor</div>
+          <p class="trainer-spec">ERYT-500 Yoga Alliance mentor. Expert in stress-reduction breathwork, nervous system reset, and active mobility.</p>
+        </div>
+      </div>
+      <div class="trainer-card">
+        <div class="trainer-avatar" style="background: #141018; background-image: url('https://ifsinstitute.com/wp-content/uploads/2024/03/scope-for-fitness-trainer.jpg'); background-size: cover; background-position: center;">
+          <div class="trainer-initials">JT</div>
+        </div>
+        <div class="trainer-info">
+          <div class="trainer-name">James Thorn</div>
+          <div class="trainer-role">Clinical Sports Nutritionist</div>
+          <p class="trainer-spec">Registered Dietitian (RD). Focuses on body recomposition, clean plant-based macro strategies, and habit hacking.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Client Transformations -->
+  <section class="section" id="transformations">
+    <div class="section-label">Real Results</div>
+    <h2 class="section-title">Client Transformations</h2>
+    <p class="section-intro">Hover over the images to reveal the full visual path. Consistent training and mindful nutrition drive sustainable shifts inside and out.</p>
+    <div class="transformation-grid">
+      <div class="transformation-item">
+        <img class="transformation-before" src="https://i0.wp.com/thecutgym.com/wp-content/uploads/2024/06/male-body-transformation-london.webp?fit=1000%2C700&ssl=1" alt="Before">
+        <img class="transformation-after" src="https://i0.wp.com/thecutgym.com/wp-content/uploads/2024/06/male-body-transformation-london.webp?fit=1000%2C700&ssl=1" alt="After">
+        <div class="transformation-label">Recomp: 12 Weeks</div>
+      </div>
+      <div class="transformation-item">
+        <img class="transformation-before" src="https://i0.wp.com/thecutgym.com/wp-content/uploads/2024/11/male-body-transformation-london-3.webp?fit=750%2C525&ssl=1" alt="Before">
+        <img class="transformation-after" src="https://i0.wp.com/thecutgym.com/wp-content/uploads/2024/11/male-body-transformation-london-3.webp?fit=750%2C525&ssl=1" alt="After">
+        <div class="transformation-label">Cardio: -12kg Fat Loss</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Workout Generator Section -->
+  <section class="workout-generator-section" id="workout-generator">
+    <div class="section-label">Tailored Routine</div>
+    <h2 class="section-title">Interactive Workout Generator</h2>
+    <p class="section-intro">Formulate a custom physical workout tailored to your target goal, available gear, and fitness index.</p>
+    <div class="workout-inner">
+      <div class="workout-left">
+        <!-- Goal Select -->
+        <div class="workout-option-group">
+          <label class="workout-option-label">Select Your Focus</label>
+          <div class="workout-grid-select" id="workout-goal-select">
+            <button class="workout-card-btn active" data-goal="lose" onclick="selectWorkoutGoal('lose')">
+              <span class="card-icon">🔥</span>Fat Loss
+            </button>
+            <button class="workout-card-btn" data-goal="gain" onclick="selectWorkoutGoal('gain')">
+              <span class="card-icon">💪</span>Build Muscle
+            </button>
+            <button class="workout-card-btn" data-goal="endurance" onclick="selectWorkoutGoal('endurance')">
+              <span class="card-icon">⚡</span>Endurance
+            </button>
+            <button class="workout-card-btn" data-goal="mobility" onclick="selectWorkoutGoal('mobility')">
+              <span class="card-icon">🧘</span>Mobility
+            </button>
+          </div>
+        </div>
+
+        <!-- Equipment Select -->
+        <div class="workout-option-group">
+          <label class="workout-option-label">Available Gear</label>
+          <div class="workout-grid-select" id="workout-eq-select">
+            <button class="workout-card-btn active" data-eq="bodyweight" onclick="selectWorkoutEquipment('bodyweight')">
+              <span class="card-icon">🤸</span>Bodyweight
+            </button>
+            <button class="workout-card-btn" data-eq="minimal" onclick="selectWorkoutEquipment('minimal')">
+              <span class="card-icon">🏋️</span>Dumbbells
+            </button>
+            <button class="workout-card-btn" data-eq="gym" onclick="selectWorkoutEquipment('gym')">
+              <span class="card-icon">🏢</span>Full Gym
+            </button>
+          </div>
+        </div>
+
+        <!-- Dropdowns -->
+        <div class="workout-fields-row">
+          <div class="workout-field">
+            <label>Fitness Experience</label>
+            <select id="workout-level">
+              <option value="beginner">Beginner</option>
+              <option value="intermediate" selected>Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </div>
+          <div class="workout-field">
+            <label>Routine Duration</label>
+            <select id="workout-duration">
+              <option value="15">15 Minutes</option>
+              <option value="30" selected>30 Minutes</option>
+              <option value="45">45 Minutes</option>
+              <option value="60">60 Minutes</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="workout-generate-btn" onclick="generateWorkout()">Generate Custom Routine</button>
+      </div>
+
+      <div class="workout-right">
+        <div class="workout-result-box" id="workout-result-box">
+          <div class="workout-placeholder" id="workout-placeholder">
+            Configure your target workout metrics on the left, then trigger "Generate Custom Routine" to begin.
+          </div>
+          <div id="workout-output" style="display: none; width: 100%;">
+            <div class="workout-header">
+              <h3 id="workout-title-display">Your Custom Routine</h3>
+              <div class="workout-subtitle" id="workout-desc-display">Specifically organized to support your target path. Check off steps as you proceed.</div>
+            </div>
+
+            <div class="workout-meta-summary">
+              <div class="workout-meta-item">
+                <span class="workout-meta-val" id="workout-time-target">30m</span>
+                <span class="workout-meta-lbl">Target Time</span>
+              </div>
+              <div class="workout-meta-item" style="text-align: center;">
+                <span class="workout-meta-val" id="workout-eq-target">None</span>
+                <span class="workout-meta-lbl">Equipment</span>
+              </div>
+              <div class="workout-meta-item" style="text-align: center;">
+                <span class="workout-meta-val" id="workout-ex-target">6</span>
+                <span class="workout-meta-lbl">Exercises</span>
+              </div>
+              <div class="workout-meta-item" style="text-align: right;">
+                <span class="workout-meta-val" id="workout-logged-target" style="color: var(--green);">0</span>
+                <span class="workout-meta-lbl">Steps Logged</span>
+              </div>
+            </div>
+
+            <!-- Exercises list target -->
+            <div class="workout-list" id="workout-list">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Health & Wellness Dashboard Section -->
+  <section class="dashboard-section" id="dashboard">
+    <div class="section-label">Health Metrics</div>
+    <h2 class="section-title">Unified Health Dashboard</h2>
+    <p class="section-intro">Input your personal parameters to calculate key bio-indices. Data syncs dynamically between calculators.</p>
+    <div class="dashboard-inner">
+      <div class="dashboard-left">
+        <!-- Toggle Tabs -->
+        <div class="dashboard-tabs">
+          <button class="active" id="tab-btn-bmi" onclick="setDashboardTab('bmi')">BMI Index</button>
+          <button id="tab-btn-bmr" onclick="setDashboardTab('bmr')">BMR & TDEE</button>
+        </div>
+
+        <div class="dashboard-tabs" style="margin-bottom: 2rem;">
+          <button class="active" id="btn-metric" onclick="setUnit('metric')">Metric Units</button>
+          <button id="btn-imperial" onclick="setUnit('imperial')">Imperial Units</button>
+        </div>
+
+        <!-- Dynamic Form Fields -->
+        <div class="dashboard-fields">
+          <div class="dashboard-fields-row">
+            <div class="dashboard-field">
+              <label>Height</label>
+              <input type="number" id="dash-height" placeholder="175" min="1">
+              <div class="unit-label" id="height-unit-label">centimetres (cm)</div>
+            </div>
+            <div class="dashboard-field">
+              <label>Weight</label>
+              <input type="number" id="dash-weight" placeholder="70" min="1">
+              <div class="unit-label" id="weight-unit-label">kilograms (kg)</div>
+            </div>
+          </div>
+
+          <div class="dashboard-fields-row" id="dash-field-age" style="display: none;">
+            <div class="dashboard-field" style="grid-column: 1 / -1;">
+              <label>Age (Years)</label>
+              <input type="number" id="dash-age" placeholder="25" min="1" max="110" value="25">
+            </div>
+          </div>
+
+          <div class="dashboard-field" id="dash-field-gender" style="display: none;">
+            <label>Biological Gender</label>
+            <select id="dash-gender">
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </div>
+
+          <div class="dashboard-field" id="dash-field-activity" style="display: none;">
+            <label>Physical Activity Scale</label>
+            <select id="dash-activity">
+              <option value="1.2">Sedentary (Little or no active exercise)</option>
+              <option value="1.375" selected>Lightly Active (1-3 light sessions/week)</option>
+              <option value="1.55">Moderately Active (3-5 intense workouts/week)</option>
+              <option value="1.725">Very Active (6-7 heavy workouts/week)</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="dashboard-calc-btn" onclick="calculateDashboard()">
+          <span id="dash-calc-btn-text">Calculate BMI</span>
+        </button>
+      </div>
+
+      <div class="dashboard-right">
+        <div class="dashboard-result-box" id="dash-result-box">
+          <div class="dashboard-placeholder" id="dash-placeholder">
+            Enter your physical details and press Calculate. Your inputs will sync automatically to the Diet Planner.
+          </div>
+          <div class="dashboard-output-block" id="dash-output-block" style="display: none;">
+            <div class="dashboard-output-num" id="dash-number">--</div>
+            <div class="dashboard-output-title" id="dash-category">--</div>
+            <p class="dashboard-output-desc" id="dash-advice"></p>
+
+            <!-- BMI scale representation -->
+            <div class="dashboard-scale" id="dash-scale-container">
+              <div class="dashboard-scale-bar">
+                <div class="dashboard-scale-needle" id="dash-needle"></div>
+              </div>
+              <div class="dashboard-scale-labels">
+                <span>Underweight</span> <span>Normal</span> <span>Overweight</span> <span>Obese</span>
+              </div>
+            </div>
+
+            <!-- BMR Metric breakdown -->
+            <div class="dashboard-metric-row" id="dash-bmr-metrics" style="display: none;">
+              <div class="dashboard-metric-col">
+                <div class="dashboard-metric-val" id="val-bmr">--</div>
+                <div class="dashboard-metric-lbl">Base BMR</div>
+              </div>
+              <div class="dashboard-metric-col">
+                <div class="dashboard-metric-val" id="val-tdee">--</div>
+                <div class="dashboard-metric-lbl">Active TDEE</div>
+              </div>
+              <div class="dashboard-metric-col" style="border-color: var(--blue);">
+                <div class="dashboard-metric-val" id="val-water" style="color: var(--blue);">--</div>
+                <div class="dashboard-metric-lbl">Hydration Target</div>
+              </div>
+            </div>
+
+            <!-- BMI index reference table -->
+            <div id="dash-table-container">
+              <table class="dashboard-table">
+                <tr id="row-under">
+                  <td>Underweight</td>
+                  <td>&lt; 18.5</td>
+                </tr>
+                <tr id="row-normal">
+                  <td>Normal weight (Healthy)</td>
+                  <td>18.5 – 24.9</td>
+                </tr>
+                <tr id="row-over">
+                  <td>Overweight</td>
+                  <td>25 – 29.9</td>
+                </tr>
+                <tr id="row-obese">
+                  <td>Obese</td>
+                  <td>≥ 30</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Diet Planner Section -->
+  <section class="diet-section" id="diet">
+    <div class="section-label">Fuel & Recovery</div>
+    <h2 class="section-title">Interactive Diet Planner</h2>
+    <p class="section-intro">Synchronize your nutrition strategy by calculating targets, selecting meal styles, and logging calories dynamically.</p>
+    <div class="diet-inner">
+      <div class="diet-left">
+        <!-- Goal Select -->
+        <div class="diet-option-group">
+          <label class="diet-option-label">Target Goal</label>
+          <div class="diet-grid-select" id="diet-goal-select">
+            <button class="diet-card-btn active" data-goal="lose" onclick="selectDietGoal('lose')">
+              <span class="card-icon">🔥</span>Fat Loss
+            </button>
+            <button class="diet-card-btn" data-goal="maintain" onclick="selectDietGoal('maintain')">
+              <span class="card-icon">⚡</span>Maintain
+            </button>
+            <button class="diet-card-btn" data-goal="gain" onclick="selectDietGoal('gain')">
+              <span class="card-icon">💪</span>Build Muscle
+            </button>
+          </div>
+        </div>
+
+        <!-- Preference Select -->
+        <div class="diet-option-group">
+          <label class="diet-option-label">Diet Style</label>
+          <div class="diet-grid-select" id="diet-pref-select">
+            <button class="diet-card-btn active" data-pref="veg" onclick="selectDietPref('veg')">
+              <span class="card-icon">🥗</span>Vegetarian
+            </button>
+            <button class="diet-card-btn" data-pref="vegan" onclick="selectDietPref('vegan')">
+              <span class="card-icon">🌱</span>Vegan
+            </button>
+            <button class="diet-card-btn" data-pref="balanced" onclick="selectDietPref('balanced')">
+              <span class="card-icon">🥩</span>Balanced
+            </button>
+            <button class="diet-card-btn" data-pref="keto" onclick="selectDietPref('keto')">
+              <span class="card-icon">🥑</span>Keto
+            </button>
+          </div>
+        </div>
+
+        <!-- Metrics (Synced from health stats) -->
+        <div class="diet-fields-row">
+          <div class="diet-field">
+            <label>Weight (kg)</label>
+            <input type="number" id="diet-weight" placeholder="70" min="20" max="300">
+          </div>
+          <div class="diet-field">
+            <label>Height (cm)</label>
+            <input type="number" id="diet-height" placeholder="175" min="100" max="250">
+          </div>
+          <div class="diet-field">
+            <label>Age (Years)</label>
+            <input type="number" id="diet-age" placeholder="25" min="10" max="100">
+          </div>
+        </div>
+
+        <div class="diet-fields-row">
+          <div class="diet-field" style="grid-column: 1 / 2;">
+            <label>Gender</label>
+            <select id="diet-gender">
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </div>
+          <div class="diet-field" style="grid-column: 2 / -1;">
+            <label>Physical Activity Scale</label>
+            <select id="diet-activity">
+              <option value="1.2">Sedentary (No exercise)</option>
+              <option value="1.4" selected>Moderately Active (1-4 workouts/wk)</option>
+              <option value="1.6">Very Active (Daily workouts)</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="diet-generate-btn" onclick="generateDietPlan()">Generate Diet Plan</button>
+      </div>
+
+      <div class="diet-right">
+        <div class="diet-result-box" id="diet-result-box">
+          <div class="diet-placeholder" id="diet-placeholder">
+            Set your target preferences, sync metrics, and trigger "Generate Diet Plan" to populate daily menus.
+          </div>
+          <div id="diet-output" style="display: none; width: 100%;">
+            <div class="diet-header">
+              <h3 id="diet-title-display">Your Tailored Diet</h3>
+              <div class="diet-subtitle" id="diet-desc-display">Custom daily plan mapped to TDEE calculations. Track macro stats.</div>
+            </div>
+
+            <div class="diet-calories-summary">
+              <div class="diet-cal-number-container">
+                <span class="diet-cal-number" id="diet-cal-target">--</span>
+                <span class="diet-cal-label">Daily Target (kcal)</span>
+              </div>
+              <div class="diet-cal-number-container" style="text-align: right;">
+                <span class="diet-cal-number" id="diet-cal-logged" style="color: var(--white);">0</span>
+                <span class="diet-cal-label">Logged Today</span>
+              </div>
+            </div>
+
+            <!-- Macros Split -->
+            <div class="diet-macros-row">
+              <div class="diet-macro-col">
+                <div class="diet-macro-name">Protein</div>
+                <div class="diet-macro-val" id="diet-macro-p">--</div>
+              </div>
+              <div class="diet-macro-col">
+                <div class="diet-macro-name">Carbs</div>
+                <div class="diet-macro-val" id="diet-macro-c">--</div>
+              </div>
+              <div class="diet-macro-col">
+                <div class="diet-macro-name">Fats</div>
+                <div class="diet-macro-val" id="diet-macro-f">--</div>
+              </div>
+              <div class="diet-macro-col" style="border-color: var(--copper);">
+                <div class="diet-macro-name" style="color: var(--copper);">Logged</div>
+                <div class="diet-macro-val" id="diet-macro-logged" style="color: var(--copper);">0%</div>
+              </div>
+            </div>
+
+            <!-- Meal Checklist -->
+            <div class="diet-meals-container" id="diet-meals-container">
+              <!-- Rendered dynamically -->
+            </div>
+
+            <!-- Water Tracker -->
+            <div class="diet-water-tracker">
+              <div class="diet-water-header">
+                <span class="diet-water-title">💧 Daily Hydration Tracker</span>
+                <span class="diet-water-count" id="diet-water-count">0 / 8 Glasses</span>
+              </div>
+              <div class="diet-glasses-row" id="diet-glasses-row">
+                <!-- Water glass items rendered dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mindfulness & Breathing Section -->
+  <section class="mindfulness-section" id="mindfulness">
+    <div class="section-label">Mental Wellness</div>
+    <h2 class="section-title">Mindfulness & Guided Breathing</h2>
+    <p class="section-intro">Calm your sympathetic nervous system, reset stress indices, and find mental balance using our breathing assistant.</p>
+    <div class="mindfulness-inner">
+      <div class="mindfulness-left">
+        <ul class="breathing-instruction-list">
+          <li>
+            <div class="instruction-step-num">01</div>
+            <div class="instruction-step-text">
+              <strong>Inhale Deeply (4 Seconds)</strong>
+              <p>Inhale quietly through your nose, expanding your diaphragm. Feel your energy ground.</p>
+            </div>
+          </li>
+          <li>
+            <div class="instruction-step-num">02</div>
+            <div class="instruction-step-text">
+              <strong>Hold Breath (7 Seconds)</strong>
+              <p>Keep your lungs comfortably full. Let clean oxygen saturate your muscle tissues fully.</p>
+            </div>
+          </li>
+          <li>
+            <div class="instruction-step-num">03</div>
+            <div class="instruction-step-text">
+              <strong>Exhale Audibly (8 Seconds)</strong>
+              <p>Exhale completely through your mouth with a soft whoosh, releasing physical fatigue and mental tension.</p>
+            </div>
+          </li>
+        </ul>
+        <button class="mindfulness-control-btn" id="breath-control-btn" onclick="toggleBreathing()">Start Guided Breathing</button>
+      </div>
+
+      <div class="mindfulness-visualizer">
+        <div class="breathing-container" id="breathing-container">
+          <div class="breathing-circle-outer"></div>
+          <div class="breathing-circle-inner"></div>
+          <div class="breathing-text">
+            <div id="breath-state-label">Ready</div>
+            <div class="breathing-timer" id="breath-timer-val">Press Start</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Finder Section -->
+  <section class="gyms-section" id="gyms">
+    <div class="section-label">Find Your Activity</div>
+    <h2 class="section-title">Locate Fitness & Wellness Spaces</h2>
+    <p class="section-intro">Discover gyms, yoga studios, municipal parks, swimming pools, cycle paths, and running tracks in your local area.</p>
+    <button class="gyms-locate-btn" id="locate-btn" onclick="locateUser()">
+      <div class="pin-icon"></div><span id="locate-text">Use My Location</span>
+    </button>
+    <div class="gyms-filter-bar" id="gyms-filter" style="display:none;">
+      <button class="filter-btn active" onclick="filterGyms('all', this)">All Spaces</button>
+      <button class="filter-btn" onclick="filterGyms('gym', this)">Gyms</button>
+      <button class="filter-btn" onclick="filterGyms('yoga', this)">Yoga Studios</button>
+      <button class="filter-btn" onclick="filterGyms('park', this)">Parks</button>
+      <button class="filter-btn" onclick="filterGyms('pool', this)">Swimming</button>
+      <button class="filter-btn" onclick="filterGyms('sport', this)">Sports Centres</button>
+      <button class="filter-btn" onclick="filterGyms('running', this)">Running Tracks</button>
+      <button class="filter-btn" onclick="filterGyms('cycling', this)">Cycling Paths</button>
+    </div>
+    <div class="gyms-status" id="gyms-status"></div>
+    <div class="gyms-grid" id="gyms-grid">
+      <div class="gyms-empty" id="gyms-empty" style="display:none;">No locations found within 5km of your coordinates.</div>
+    </div>
+  </section>
+
+  <!-- Subscription Pricing Section -->
+  <section class="section" id="pricing">
+    <div class="section-label">Pricing Subscriptions</div>
+    <h2 class="section-title">Choose Your Path</h2>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="plan-name">Basic Plan</div>
+        <div class="plan-price">₹0</div>
+        <div class="plan-period">free forever</div>
+        <ul class="plan-features">
+          <li>Access to Interactive Health Stats</li>
+          <li>Basic Workout Generator (Bodyweight)</li>
+          <li>Water & Hydration logging</li>
+          <li>Standard community forum access</li>
+        </ul>
+        <a href="#" class="btn-ghost" style="width:100%; text-align:center; display:block;" onclick="openAuthModal(event, 'signup')">Register Free</a>
+      </div>
+      <div class="pricing-card featured">
+        <div class="plan-name">Pro Digital Plan</div>
+        <div class="plan-price">₹2,499</div>
+        <div class="plan-period">per month — digital pass</div>
+        <ul class="plan-features">
+          <li>Unlimited Workout Generation (All gear)</li>
+          <li>Full TDEE Nutrition Planner</li>
+          <li>Expanded recipe database access</li>
+          <li>Interactive guided breathing & resets</li>
+          <li>Legend AI Assistant chat access</li>
+          <li>Progress tracking dashboard</li>
+        </ul>
+        <a href="#" class="btn-primary" style="width:100%; text-align:center; display:block; background:#111; color:#fff;" onclick="openAuthModal(event, 'signup')">Unlock Pro</a>
+      </div>
+      <div class="pricing-card">
+        <div class="plan-name">1:1 VIP Coaching Plan</div>
+        <div class="plan-price">₹5,999</div>
+        <div class="plan-period">per month — complete coach access</div>
+        <ul class="plan-features">
+          <li>All Pro Digital platform features</li>
+          <li>Weekly 1:1 online coaching checks</li>
+          <li>Direct messaging with physical mentor</li>
+          <li>Custom macro tweaks by dietitian</li>
+          <li>Bi-weekly video forms review</li>
+          <li>Custom lifestyle recovery routines</li>
+        </ul>
+        <a href="#" class="btn-ghost" style="width:100%; text-align:center; display:block;" onclick="openAuthModal(event, 'signup')">Join VIP Coaching</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer Section -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <span class="logo">FIT<span>NOVA</span></span>
+        <p class="footer-tagline">Your complete online ecosystem to track physical performance, customize clean nutrition, and calibrate mental health.</p>
+        <div class="app-badges">
+          <a href="#" class="app-badge">
+            <svg viewBox="0 0 24 24"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C3.8 16.32 3.1 9.4 6.77 5.86c1.77-1.72 3.55-1.52 4.67-1.03 1.48.64 2.12.63 3.56 0 1.2-.53 3.32-.9 4.81 1.05-3.66 2.05-3 6.96.48 8.65-1.05 2.5-2.43 4.96-3.24 5.75zM15.93.5c1-1.08 2.65-.95 3.58 0-.96 1.15-2.6 1.08-3.58 0z"/></svg>
+            <div class="app-badge-text">
+              <span>Download on the</span>
+              <span>App Store</span>
+            </div>
+          </a>
+          <a href="#" class="app-badge">
+            <svg viewBox="0 0 24 24"><path d="M3 1.95v20.1c0 .58.42.95 1 .95.2 0 .38-.05.56-.16l14.36-10.05-14.36-10.05c-.18-.1-.36-.16-.56-.16-.58 0-1 .37-1 .95zm16.48 9.53L4.85 21.1c.32.18.73.18 1.05 0l13.58-9.5c.34-.24.34-.64 0-.88L5.9 1.22c-.32-.18-.73-.18-1.05 0L19.48 11c.35.1.35.38 0 .48z"/></svg>
+            <div class="app-badge-text">
+              <span>Get it on</span>
+              <span>Google Play</span>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Wellness Platforms</h4>
+        <ul>
+          <li><a href="#workout-generator">Workout Generator</a></li>
+          <li><a href="#dashboard">BMR & TDEE Index</a></li>
+          <li><a href="#diet">Daily Meals Planner</a></li>
+          <li><a href="#mindfulness">Breathing Exercises</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Ecosystem</h4>
+        <ul>
+          <li><a href="#trainers">Our Coaches</a></li>
+          <li><a href="#pricing">Digital Subscriptions</a></li>
+          <li><a href="#gyms">Locate Local Activity</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>E-Support</h4>
+        <ul>
+          <li><a href="#">Frequently Asked Questions</a></li>
+          <li><a href="#">Support Ticket Desk</a></li>
+          <li><a href="#">Privacy Settings & Policies</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 FitNova. All rights reserved. Holistic wellness built digitally.</span>
+      <span>Privacy Policy · Terms of Service</span>
+    </div>
+  </footer>
+
+  <!-- Recipe Details Overlay Modal -->
+  <div class="recipe-overlay" id="recipeOverlay" onclick="if(event.target.id === 'recipeOverlay') closeRecipeModal()">
+    <div class="recipe-card" onclick="event.stopPropagation()">
+      <button class="recipe-close" onclick="closeRecipeModal()">✕</button>
+      <div class="recipe-tag">Recipe Details</div>
+      <h3 class="recipe-title" id="rec-title">Oatmeal with Almond Milk</h3>
+      
+      <div class="recipe-meta-row" id="rec-macros-row">
+        <div class="recipe-meta-item">
+          <span class="recipe-meta-val" id="rec-cal">350 kcal</span>
+          <span class="recipe-meta-lbl">Calories</span>
+        </div>
+        <div class="recipe-meta-item">
+          <span class="recipe-meta-val" id="rec-p">12g</span>
+          <span class="recipe-meta-lbl">Protein</span>
+        </div>
+        <div class="recipe-meta-item">
+          <span class="recipe-meta-val" id="rec-c">55g</span>
+          <span class="recipe-meta-lbl">Carbs</span>
+        </div>
+        <div class="recipe-meta-item">
+          <span class="recipe-meta-val" id="rec-f">8g</span>
+          <span class="recipe-meta-lbl">Fats</span>
+        </div>
+      </div>
+      
+      <div class="recipe-meta-row" style="border-bottom:none; margin-bottom:1.5rem; padding-bottom:0;">
+        <div class="recipe-meta-item">
+          <span class="recipe-meta-val" id="rec-time">10 min</span>
+          <span class="recipe-meta-lbl">Cook Time</span>
+        </div>
+        <div class="recipe-meta-item" style="margin-left: 3rem;">
+          <span class="recipe-meta-val" id="rec-serves">1 Person</span>
+          <span class="recipe-meta-lbl">Yields</span>
+        </div>
+      </div>
+
+      <div class="recipe-ingredients">
+        <h4 class="recipe-section-title">Ingredients Needed</h4>
+        <ul class="recipe-ingredients-list" id="rec-ing-list">
+          <!-- Populated dynamically -->
+        </ul>
+      </div>
+
+      <div class="recipe-steps">
+        <h4 class="recipe-section-title">Cooking Instructions</h4>
+        <ol class="recipe-steps-list" id="rec-steps-list">
+          <!-- Populated dynamically -->
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Auth Modal Overlay -->
+  <div class="auth-overlay" id="authOverlay" onclick="closeAuthModal(event)">
+    <div class="auth-card" onclick="event.stopPropagation()">
+      <button class="auth-close" onclick="toggleAuthModal()">×</button>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Login</button>
+        <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Sign Up</button>
+      </div>
+
+      <!-- Login Form -->
+      <form class="auth-form active" id="form-login" onsubmit="handleAuthSubmit(event)">
+        <div class="input-group">
+          <label>Email Address</label>
+          <input type="email" placeholder="athlete@fitnova.com" required>
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" placeholder="••••••••" required>
+        </div>
+        <div class="forgot-password-link">
+          <button type="button" class="btn-forgot" onclick="switchAuthTab('forgot')">Forgot Password?</button>
+        </div>
+        <button type="submit" class="btn-primary" style="margin-top:1rem;">Log In</button>
+
+        <div class="social-auth-title">Or Connect With</div>
+        <div class="social-grid">
+          <button type="button" class="btn-social" onclick="alert('Google authentication triggered!')">Google</button>
+          <button type="button" class="btn-social" onclick="alert('Facebook authentication triggered!')">Facebook</button>
+        </div>
+      </form>
+
+      <!-- Signup Form -->
+      <form class="auth-form" id="form-signup" onsubmit="handleAuthSubmit(event)">
+        <div class="input-group">
+          <label>Full Name</label>
+          <input type="text" placeholder="John Doe" required>
+        </div>
+        <div class="input-group">
+          <label>Email Address</label>
+          <input type="email" placeholder="athlete@fitnova.com" required>
+        </div>
+        <div class="input-group">
+          <label>Create Password</label>
+          <input type="password" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn-primary" style="margin-top:1rem;">Create Account</button>
+      </form>
+
+      <!-- Forgot Form -->
+      <form class="auth-form" id="form-forgot" onsubmit="handleForgotPassword(event)">
+        <div class="input-group">
+          <label>Email Address</label>
+          <input type="email" placeholder="athlete@fitnova.com" required>
+        </div>
+        <p class="forgot-password-help" style="font-size: 0.8rem; color: var(--ash); margin-top: 0.5rem; line-height: 1.5;">Input your email and we'll dispatch a link to securely reset your credentials.</p>
+        <button type="submit" class="btn-primary" style="margin-top:1rem;">Send Reset Link</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Legend AI Floating Chatbot -->
+  <button class="bot-trigger" id="botTrigger" onclick="toggleBotWindow()">
+    <svg viewBox="0 0 24 24">
+      <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
+    </svg>
+  </button>
+
+  <div class="bot-window" id="botWindow">
+    <div class="bot-header">
+      <div class="bot-title">LEGEND <span>AI</span></div>
+      <button class="bot-close" onclick="toggleBotWindow()">✕</button>
+    </div>
+    <div class="bot-messages" id="botMessages">
+      <div class="msg-bubble bot">Welcome, athlete. I am your automated wellness assistant. Ask me about custom workouts, daily meal plans, and mindfulness calibrations.</div>
+    </div>
+    <div class="bot-input-area">
+      <input type="text" id="botInput" placeholder="Ask about workouts, recipes, pricing..." onkeydown="if(event.key === 'Enter') sendBotMessage()">
+      <button class="bot-send-btn" onclick="sendBotMessage()">GO</button>
+    </div>
+  </div>
+
+  <script src="fitness.js" defer></script>
+</body>
+
+</html>
