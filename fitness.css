@@ -1971,6 +1971,7 @@ nav ul a:hover {
   width: 300px;
   height: 300px;
   position: relative;
+  cursor: pointer;
 }
 
 .breathing-circle-outer {

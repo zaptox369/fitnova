@@ -13,7 +13,7 @@ document.addEventListener('mousemove', e => {
 
 function refreshCursorListeners() {
   if (!cursor) return;
-  document.querySelectorAll('a, button, input, select, .auth-tab, .diet-card-btn, .workout-card-btn, .diet-water-glass, .workout-chk-wrapper input, .diet-checkbox-wrapper input').forEach(el => {
+  document.querySelectorAll('a, button, input, select, .auth-tab, .diet-card-btn, .workout-card-btn, .diet-water-glass, .workout-chk-wrapper input, .diet-checkbox-wrapper input, .breathing-container').forEach(el => {
     el.addEventListener('mouseenter', () => cursor.style.transform = 'scale(2.2)');
     el.addEventListener('mouseleave', () => cursor.style.transform = 'scale(1)');
   });
