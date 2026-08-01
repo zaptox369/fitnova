@@ -847,7 +847,7 @@
 
         <div class="social-auth-title">Or Connect With</div>
         <div class="social-grid">
-          <button type="button" class="btn-social" onclick="alert('Google authentication triggered!')">Google</button>
+            <button type="button" class="btn-social" id="googleSignBtn">Google</button>
           <button type="button" class="btn-social" onclick="alert('Facebook authentication triggered!')">Facebook</button>
         </div>
       </form>
@@ -903,6 +903,31 @@
   </div>
 
   <script src="fitness.js" defer></script>
+  <!-- Firebase (web) - replace firebaseConfig below with your project values -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script>
+    // TODO: Replace these values with your Firebase project's config
+    const firebaseConfig = {
+      apiKey: "REPLACE_ME",
+      authDomain: "REPLACE_ME",
+      projectId: "REPLACE_ME",
+      storageBucket: "REPLACE_ME",
+      messagingSenderId: "REPLACE_ME",
+      appId: "REPLACE_ME"
+    };
+
+    try {
+      if (firebase && !firebase.apps?.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      window._firebaseReady = true;
+      console.log('Firebase init attempt complete.');
+    } catch (err) {
+      window._firebaseReady = false;
+      console.warn('Firebase init skipped or failed. Please add valid config to fitness.html', err);
+    }
+  </script>
 </body>
 
 </html>

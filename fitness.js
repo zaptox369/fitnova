@@ -71,7 +71,22 @@ function switchAuthTab(type) {
 }
 function handleAuthSubmit(e) {
   e.preventDefault();
-  alert('Welcome athlete! You have successfully signed into the platform.');
+  const form = e.target;
+  const emailInput = form.querySelector('input[type="email"]');
+  const email = emailInput ? emailInput.value.trim() : '';
+  // try to capture a name if this is the signup form
+  const nameInput = form.querySelector('input[type="text"]');
+  const name = nameInput ? nameInput.value.trim() : '';
+
+  if (!email) {
+    alert('Please provide an email address.');
+    return;
+  }
+
+  const user = { email };
+  if (name) user.name = name;
+
+  loginUser(user);
   toggleAuthModal();
 }
 function handleForgotPassword(e) {
@@ -79,8 +94,131 @@ function handleForgotPassword(e) {
   const emailInput = e.target.querySelector('input[type="email"]');
   const email = emailInput ? emailInput.value : '';
   alert('A password reset link has been dispatched to ' + email + '.');
+  console.log('Password reset requested for:', email);
   switchAuthTab('login');
   e.target.reset();
+}
+
+// --- SIMPLE MOCK AUTH HELPERS (localStorage) ---
+function loginUser(user) {
+  try {
+    localStorage.setItem('fitnovaUser', JSON.stringify(user));
+  } catch (err) {
+    console.error('Failed to persist user to localStorage', err);
+  }
+  console.log('User logged in:', user);
+  renderAuthState();
+}
+
+function logoutUser() {
+  localStorage.removeItem('fitnovaUser');
+  console.log('User logged out');
+  renderAuthState();
+}
+
+function renderAuthState() {
+  const navBtn = document.querySelector('.nav-cta');
+  let user = null;
+  try {
+    user = JSON.parse(localStorage.getItem('fitnovaUser'));
+  } catch (err) {
+    user = null;
+  }
+
+  if (navBtn) {
+    if (user && user.email) {
+      const shortName = user.name ? user.name.split(' ')[0] : user.email.split('@')[0];
+      navBtn.textContent = `Hi, ${shortName}`;
+      navBtn.onclick = (e) => { e.preventDefault(); logoutUser(); };
+    } else {
+      navBtn.textContent = 'Login / Join';
+      navBtn.onclick = (e) => openAuthModal(e, 'login');
+    }
+  }
+  // update on-screen debug status
+  try {
+    const statusEl = _ensureAuthStatusEl();
+    if (user && user.email) {
+      statusEl.textContent = `Signed in: ${user.email}`;
+    } else {
+      statusEl.textContent = `Signed out`;
+    }
+  } catch (err) {
+    console.error('Failed to update auth status UI', err);
+  }
+}
+
+// --- FIREBASE GOOGLE SIGN-IN (optional real OAuth) ---
+async function signInWithGoogle() {
+  if (!window._firebaseReady || !window.firebase || !firebase.auth) {
+    alert('Firebase not configured. Open console for instructions.');
+    console.warn('Attempted Google sign-in but Firebase not ready.');
+    return;
+  }
+
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try {
+    const result = await firebase.auth().signInWithPopup(provider);
+    const fbUser = result.user;
+    if (fbUser) {
+      const user = { email: fbUser.email, name: fbUser.displayName, uid: fbUser.uid, photoURL: fbUser.photoURL };
+      loginUser(user);
+      console.log('Firebase Google sign-in success:', user);
+    }
+  } catch (err) {
+    console.error('Google sign-in failed', err);
+    alert('Google sign-in failed: ' + (err && err.message ? err.message : err));
+  }
+}
+
+// Wire Google button if present
+try {
+  const gbtn = document.getElementById('googleSignBtn');
+  if (gbtn) gbtn.addEventListener('click', signInWithGoogle);
+} catch (err) {
+  console.error('Failed to attach Google button handler', err);
+}
+
+// Listen to Firebase auth state changes (if Firebase present)
+try {
+  if (window.firebase && firebase.auth) {
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        loginUser({ email: user.email, name: user.displayName, uid: user.uid, photoURL: user.photoURL });
+      } else {
+        renderAuthState();
+      }
+    });
+  }
+} catch (err) {
+  console.warn('Auth state listener not attached (Firebase missing).', err);
+}
+
+// Initialize auth state on load
+// Ensure auth state is rendered now (script is loaded with defer)
+try {
+  renderAuthState();
+} catch (err) {
+  console.error('renderAuthState failed on init', err);
+}
+
+// Small on-screen auth status for quick debugging
+function _ensureAuthStatusEl() {
+  let el = document.getElementById('authStatus');
+  if (el) return el;
+  el = document.createElement('div');
+  el.id = 'authStatus';
+  el.style.position = 'fixed';
+  el.style.bottom = '12px';
+  el.style.right = '12px';
+  el.style.background = 'rgba(0,0,0,0.6)';
+  el.style.color = '#fff';
+  el.style.padding = '8px 10px';
+  el.style.borderRadius = '8px';
+  el.style.fontSize = '12px';
+  el.style.zIndex = 9999;
+  document.body.appendChild(el);
+  return el;
 }
 
 // --- INTERACTIVE CHATBOT FUNCTIONS ---
