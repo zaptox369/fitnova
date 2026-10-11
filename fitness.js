@@ -221,11 +221,37 @@ function _ensureAuthStatusEl() {
   return el;
 }
 
+// --- MOBILE NAVIGATION TOGGLE ---
+function toggleMobileNav() {
+  const menu = document.getElementById('navMenu');
+  const toggle = document.getElementById('mobileNavToggle');
+  if (menu) menu.classList.toggle('open');
+  if (toggle) toggle.classList.toggle('active');
+}
+
+// Close mobile nav when clicking links
+document.querySelectorAll('#navMenu a').forEach(link => {
+  link.addEventListener('click', () => {
+    const menu = document.getElementById('navMenu');
+    const toggle = document.getElementById('mobileNavToggle');
+    if (menu) menu.classList.remove('open');
+    if (toggle) toggle.classList.remove('active');
+  });
+});
+
 // --- INTERACTIVE CHATBOT FUNCTIONS ---
 function toggleBotWindow() {
   const windowEl = document.getElementById('botWindow');
   if (windowEl) {
     windowEl.classList.toggle('active');
+  }
+}
+
+function quickBotQuery(query) {
+  const input = document.getElementById('botInput');
+  if (input) {
+    input.value = query;
+    sendBotMessage();
   }
 }
 function sendBotMessage() {

@@ -5,6 +5,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FitNova — Holistic Fitness & Wellness Ecosystem</title>
+
+  <!-- SEO & Social Graph Meta Tags -->
+  <meta name="description" content="Transform your life with FitNova — personalized workout generator, science-backed TDEE/macro nutrition planning, guided 4-7-8 mindfulness, and real-time nearby gym discovery.">
+  <meta name="keywords" content="fitness, workout generator, nutrition planner, TDEE calculator, BMI, mindfulness, gym locator, AI coach, wellness">
+  <meta name="author" content="FitNova">
+  <meta name="theme-color" content="#050505">
+
+  <!-- Open Graph / Social Media -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="FitNova — Holistic Fitness & Wellness Ecosystem">
+  <meta property="og:description" content="Personalized workouts, macro nutrition planning, mindfulness calibrations, and live fitness location discovery in one unified experience.">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1517836357463-d25ddfcbf042?w=1200&q=80">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="FitNova — Holistic Fitness & Wellness Ecosystem">
+  <meta name="twitter:description" content="Transform inside and out with custom workouts, science-backed nutrition, and guided breathwork.">
+  <meta name="twitter:image" content="https://images.unsplash.com/photo-1517836357463-d25ddfcbf042?w=1200&q=80">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23050505'/><polygon points='30,75 50,20 70,75 55,75 50,55 45,75' fill='%23ff4500'/><circle cx='50' cy='38' r='8' fill='%23ff8c00'/></svg>">
+
+  <!-- Fonts & Stylesheet -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="fitness.css">
 </head>
@@ -28,8 +53,8 @@
 
   <!-- Navigation -->
   <nav>
-    <div class="logo">FIT<span>NOVA</span></div>
-    <ul>
+    <a href="#" class="logo-link" style="text-decoration:none;"><div class="logo">FIT<span>NOVA</span></div></a>
+    <ul id="navMenu">
       <li><a href="#programs">Programs</a></li>
       <li><a href="#workout-generator">Workout Gen</a></li>
       <li><a href="#dashboard">Health Stats</a></li>
@@ -39,6 +64,11 @@
       <li><a href="#pricing">Pricing</a></li>
       <li><a href="#" class="nav-cta" onclick="openAuthModal(event, 'login')">Login / Join</a></li>
     </ul>
+    <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle navigation" onclick="toggleMobileNav()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
   </nav>
 
   <!-- Hero Section -->
@@ -882,19 +912,26 @@
   </div>
 
   <!-- Legend AI Floating Chatbot -->
-  <button class="bot-trigger" id="botTrigger" onclick="toggleBotWindow()">
+  <button class="bot-trigger" id="botTrigger" onclick="toggleBotWindow()" aria-label="Open AI Assistant">
     <svg viewBox="0 0 24 24">
       <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
     </svg>
+    <span class="bot-badge-dot"></span>
   </button>
 
   <div class="bot-window" id="botWindow">
     <div class="bot-header">
-      <div class="bot-title">LEGEND <span>AI</span></div>
-      <button class="bot-close" onclick="toggleBotWindow()">✕</button>
+      <div class="bot-title">LEGEND <span>AI COACH</span></div>
+      <button class="bot-close" onclick="toggleBotWindow()" aria-label="Close Assistant">✕</button>
     </div>
     <div class="bot-messages" id="botMessages">
       <div class="msg-bubble bot">Welcome, athlete. I am your automated wellness assistant. Ask me about custom workouts, daily meal plans, and mindfulness calibrations.</div>
+    </div>
+    <div class="bot-quick-chips">
+      <button type="button" class="bot-chip" onclick="quickBotQuery('Generate a full-body workout routine')">💪 Workout</button>
+      <button type="button" class="bot-chip" onclick="quickBotQuery('What nutrition or diet plan should I follow?')">🥗 Nutrition</button>
+      <button type="button" class="bot-chip" onclick="quickBotQuery('How do I calm down with breathing exercises?')">🧘 Breathwork</button>
+      <button type="button" class="bot-chip" onclick="quickBotQuery('What are your membership pricing plans?')">💳 Pricing</button>
     </div>
     <div class="bot-input-area">
       <input type="text" id="botInput" placeholder="Ask about workouts, recipes, pricing..." onkeydown="if(event.key === 'Enter') sendBotMessage()">
@@ -903,11 +940,10 @@
   </div>
 
   <script src="fitness.js" defer></script>
-  <!-- Firebase (web) - replace firebaseConfig below with your project values -->
+  <!-- Firebase (web) - optional remote auth sync -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
   <script>
-    // TODO: Replace these values with your Firebase project's config
     const firebaseConfig = {
       apiKey: "REPLACE_ME",
       authDomain: "REPLACE_ME",
@@ -918,14 +954,15 @@
     };
 
     try {
-      if (firebase && !firebase.apps?.length) {
+      if (typeof firebase !== 'undefined' && firebase.apps && !firebase.apps.length && firebaseConfig.apiKey !== "REPLACE_ME") {
         firebase.initializeApp(firebaseConfig);
+        window._firebaseReady = true;
+      } else {
+        window._firebaseReady = false;
+        console.log('FitNova: Client-side local engine active.');
       }
-      window._firebaseReady = true;
-      console.log('Firebase init attempt complete.');
     } catch (err) {
       window._firebaseReady = false;
-      console.warn('Firebase init skipped or failed. Please add valid config to fitness.html', err);
     }
   </script>
 </body>
