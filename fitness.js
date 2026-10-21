@@ -1406,6 +1406,8 @@ function locateUser() {
   const btn = document.getElementById('locate-btn');
   const txt = document.getElementById('locate-text');
   const status = document.getElementById('gyms-status');
+
+  if (btn.disabled) return;
   
   if (!navigator.geolocation) {
     status.textContent = 'Geolocation not supported by your browser.';
@@ -1413,6 +1415,7 @@ function locateUser() {
   }
   
   btn.classList.add('loading');
+  btn.disabled = true;
   txt.textContent = 'Locating you...';
   status.textContent = '';
   
@@ -1427,67 +1430,40 @@ function locateUser() {
     },
     function (err) {
       btn.classList.remove('loading');
+      btn.disabled = false;
       txt.textContent = 'Use My Location';
-      status.textContent = 'Could not get your location. Try enabling location services.';
+      status.textContent = err.code === 1
+        ? 'Location permission was denied. Allow location access in your browser, then try again.'
+        : 'Could not get your location. Check location services and try again.';
     },
-    { timeout: 8000 }
+    { enableHighAccuracy: false, maximumAge: 300000, timeout: 12000 }
   );
 }
 
-function fetchNearbyPlaces() {
-  const radius = 5000; // extended to 5km for better results
+async function fetchNearbyPlaces() {
   const status = document.getElementById('gyms-status');
+  const btn = document.getElementById('locate-btn');
+  const txt = document.getElementById('locate-text');
+  status.textContent = 'Searching nearby spaces...';
 
-  const q = '[out:json][timeout:30];('
-    + 'node["leisure"="fitness_centre"](around:' + radius + ',' + userLat + ',' + userLng + ');'
-    + 'node["sport"="yoga"](around:' + radius + ',' + userLat + ',' + userLng + ');'
-    + 'node["leisure"="sports_centre"](around:' + radius + ',' + userLat + ',' + userLng + ');'
-    + 'node["leisure"="swimming_pool"]["access"!="private"](around:' + radius + ',' + userLat + ',' + userLng + ');'
-    + 'node["leisure"="park"](around:' + radius + ',' + userLat + ',' + userLng + ');'
-    + 'node["sport"="running"](around:' + radius + ',' + userLat + ',' + userLng + ');'
-    + 'node["highway"="cycleway"](around:' + radius + ',' + userLat + ',' + userLng + ');'
-    + 'node["sport"="cycling"](around:' + radius + ',' + userLat + ',' + userLng + ');'
-    + 'node["amenity"="gym"](around:' + radius + ',' + userLat + ',' + userLng + ');'
-    + 'way["leisure"="fitness_centre"](around:' + radius + ',' + userLat + ',' + userLng + ');'
-    + 'way["leisure"="sports_centre"](around:' + radius + ',' + userLat + ',' + userLng + ');'
-    + 'way["leisure"="park"](around:' + radius + ',' + userLat + ',' + userLng + ');'
-    + 'way["amenity"="gym"](around:' + radius + ',' + userLat + ',' + userLng + ');'
-    + ');out center 30;';
-
-  // Multiple Overpass mirrors to try in order
-  const mirrors = [
-    'https://overpass-api.de/api/interpreter',
-    'https://overpass.kumi.systems/api/interpreter',
-    'https://maps.mail.ru/osm/tools/overpass/api/interpreter'
-  ];
-
-  function tryMirror(index) {
-    if (index >= mirrors.length) {
-      // All mirrors failed — show simulated nearby results as fallback
-      showSimulatedPlaces();
-      return;
-    }
-    status.textContent = 'Searching nearby spaces' + (index > 0 ? ' (retry ' + index + ')...' : '...');
-    fetch(mirrors[index], {
+  try {
+    const response = await fetch('/api/places', {
       method: 'POST',
-      body: 'data=' + encodeURIComponent(q),
-      signal: AbortSignal.timeout(12000)
-    })
-      .then(r => {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
-      })
-      .then(data => {
-        if (data && data.elements) {
-          processPlaces(data.elements);
-        } else {
-          throw new Error('Empty response');
-        }
-      })
-      .catch(() => tryMirror(index + 1));
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lat: userLat, lng: userLng }),
+      signal: AbortSignal.timeout(10000)
+    });
+    if (!response.ok) throw new Error('Nearby locations are unavailable.');
+    const data = await response.json();
+    if (!Array.isArray(data.elements)) throw new Error('Nearby locations returned an invalid response.');
+    processPlaces(data.elements);
+  } catch {
+    showSimulatedPlaces();
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+    txt.textContent = 'Location Found!';
   }
-
-  tryMirror(0);
 }
 
 function showSimulatedPlaces() {

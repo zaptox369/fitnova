@@ -13,7 +13,7 @@ FitNova is a responsive fitness and wellness web app with Supabase authenticatio
 
 - HTML, CSS, and vanilla JavaScript
 - [Supabase Auth and PostgreSQL](https://supabase.com/docs)
-- [Vercel Functions](https://vercel.com/docs/functions) for runtime public configuration
+- [Vercel Functions](https://vercel.com/docs/functions) for runtime public configuration and a validated, bounded OpenStreetMap location lookup
 - OpenStreetMap Overpass API for nearby facilities
 
 ## Local setup
@@ -55,4 +55,4 @@ In **Supabase → Authentication → URL Configuration**, set the Site URL to `h
 
 `public.fitness_data` stores one profile and the current workout per authenticated user. Forced RLS policies scope reads and writes to `auth.uid()`, and anonymous and public roles have no table privileges. PostgreSQL checks require profile and workout values to be JSON objects within bounded sizes, and the database owns `updated_at`. The configuration endpoint rejects secret keys and returns only a Supabase publishable (or legacy anon) key. The browser publishable key is public by design; access to user rows is enforced by RLS. Never expose Supabase secret or service-role keys.
 
-Vercel applies content-type, framing, referrer, transport-security, and browser-permission headers. The location finder requests geolocation only after a user action. Facility data comes from public OpenStreetMap endpoints and may be unavailable or incomplete.
+Vercel applies content-type, framing, referrer, transport-security, and browser-permission headers. The location finder requests geolocation only after a user action. Coordinates are sent to the bounded `/api/places` endpoint for a one-time OpenStreetMap query and are not stored by the app. Facility data comes from public OpenStreetMap endpoints and may be unavailable or incomplete.
