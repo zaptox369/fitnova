@@ -859,42 +859,38 @@
         <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Login</button>
         <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Sign Up</button>
       </div>
+      <p id="auth-message" class="auth-message" role="status" aria-live="polite" hidden></p>
 
       <!-- Login Form -->
       <form class="auth-form active" id="form-login" onsubmit="handleAuthSubmit(event)">
         <div class="input-group">
           <label>Email Address</label>
-          <input type="email" placeholder="athlete@fitnova.com" required>
+          <input type="email" name="email" placeholder="athlete@fitnova.com" autocomplete="email" required>
         </div>
         <div class="input-group">
           <label>Password</label>
-          <input type="password" placeholder="••••••••" required>
+          <input type="password" name="password" placeholder="••••••••" autocomplete="current-password" required>
         </div>
         <div class="forgot-password-link">
           <button type="button" class="btn-forgot" onclick="switchAuthTab('forgot')">Forgot Password?</button>
         </div>
         <button type="submit" class="btn-primary" style="margin-top:1rem;">Log In</button>
 
-        <div class="social-auth-title">Or Connect With</div>
-        <div class="social-grid">
-            <button type="button" class="btn-social" id="googleSignBtn">Google</button>
-          <button type="button" class="btn-social" onclick="alert('Facebook authentication triggered!')">Facebook</button>
-        </div>
       </form>
 
       <!-- Signup Form -->
       <form class="auth-form" id="form-signup" onsubmit="handleAuthSubmit(event)">
         <div class="input-group">
           <label>Full Name</label>
-          <input type="text" placeholder="John Doe" required>
+          <input type="text" name="name" placeholder="John Doe" autocomplete="name" required>
         </div>
         <div class="input-group">
           <label>Email Address</label>
-          <input type="email" placeholder="athlete@fitnova.com" required>
+          <input type="email" name="email" placeholder="athlete@fitnova.com" autocomplete="email" required>
         </div>
         <div class="input-group">
           <label>Create Password</label>
-          <input type="password" placeholder="••••••••" required>
+          <input type="password" name="password" placeholder="At least 8 characters" autocomplete="new-password" minlength="8" required>
         </div>
         <button type="submit" class="btn-primary" style="margin-top:1rem;">Create Account</button>
       </form>
@@ -903,11 +899,30 @@
       <form class="auth-form" id="form-forgot" onsubmit="handleForgotPassword(event)">
         <div class="input-group">
           <label>Email Address</label>
-          <input type="email" placeholder="athlete@fitnova.com" required>
+          <input type="email" name="email" placeholder="athlete@fitnova.com" autocomplete="email" required>
         </div>
         <p class="forgot-password-help" style="font-size: 0.8rem; color: var(--ash); margin-top: 0.5rem; line-height: 1.5;">Input your email and we'll dispatch a link to securely reset your credentials.</p>
         <button type="submit" class="btn-primary" style="margin-top:1rem;">Send Reset Link</button>
       </form>
+
+      <form class="auth-form" id="form-reset" onsubmit="handlePasswordUpdate(event)">
+        <div class="input-group">
+          <label>New Password</label>
+          <input type="password" name="password" placeholder="At least 8 characters" autocomplete="new-password" minlength="8" required>
+        </div>
+        <div class="input-group">
+          <label>Confirm New Password</label>
+          <input type="password" name="password-confirm" placeholder="Repeat your new password" autocomplete="new-password" minlength="8" required>
+        </div>
+        <button type="submit" class="btn-primary" style="margin-top:1rem;">Update Password</button>
+      </form>
+
+      <div class="social-auth" id="social-auth">
+        <div class="social-auth-title">Or connect with</div>
+        <div class="social-grid">
+          <button type="button" class="btn-social" onclick="signInWithProvider('google')">Google</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -939,32 +954,9 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
   <script src="fitness.js" defer></script>
-  <!-- Firebase (web) - optional remote auth sync -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "REPLACE_ME",
-      authDomain: "REPLACE_ME",
-      projectId: "REPLACE_ME",
-      storageBucket: "REPLACE_ME",
-      messagingSenderId: "REPLACE_ME",
-      appId: "REPLACE_ME"
-    };
-
-    try {
-      if (typeof firebase !== 'undefined' && firebase.apps && !firebase.apps.length && firebaseConfig.apiKey !== "REPLACE_ME") {
-        firebase.initializeApp(firebaseConfig);
-        window._firebaseReady = true;
-      } else {
-        window._firebaseReady = false;
-        console.log('FitNova: Client-side local engine active.');
-      }
-    } catch (err) {
-      window._firebaseReady = false;
-    }
-  </script>
 </body>
 
 </html>

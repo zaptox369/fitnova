@@ -40,6 +40,75 @@ function observeElements() {
 }
 observeElements();
 
+// --- SUPABASE AUTHENTICATION AND PERSISTENCE ---
+let supabaseClient = null;
+let supabaseClientPromise = null;
+
+async function getSupabaseClient() {
+  if (supabaseClient) return supabaseClient;
+  if (!window.supabase) throw new Error('The Supabase client could not be loaded. Refresh and try again.');
+
+  if (!supabaseClientPromise) {
+    supabaseClientPromise = (async () => {
+      let { FITNOVA_SUPABASE_URL: url, FITNOVA_SUPABASE_ANON_KEY: key } = window;
+      const configured = value => value && !/YOUR_|REPLACE_ME/i.test(value);
+
+      if (!configured(url) || !configured(key)) {
+        const response = await fetch('/api/config', { headers: { Accept: 'application/json' } });
+        if (!response.ok) throw new Error('Connect Supabase by setting FITNOVA_SUPABASE_URL and FITNOVA_SUPABASE_ANON_KEY in your deployment environment.');
+        const config = await response.json();
+        url = config.supabaseUrl;
+        key = config.supabaseAnonKey;
+      }
+
+      if (!configured(url) || !configured(key)) {
+        throw new Error('Supabase is not configured. Set FITNOVA_SUPABASE_URL and FITNOVA_SUPABASE_ANON_KEY.');
+      }
+      if (new URL(url).hostname === window.location.hostname) {
+        throw new Error('FITNOVA_SUPABASE_URL must be your Supabase project URL, not this website URL.');
+      }
+
+      supabaseClient = window.supabase.createClient(url, key, {
+        auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
+      });
+      return supabaseClient;
+    })().catch(error => {
+      supabaseClientPromise = null;
+      throw error;
+    });
+  }
+  return supabaseClientPromise;
+}
+let currentUser = null;
+let fitnessData = { profile: null, workout: null };
+let fitnessDataWrite = Promise.resolve();
+let activeWorkout = null;
+
+function showAppNotice(message, isError = false) {
+  let notice = document.getElementById('app-notice');
+  if (!notice) {
+    notice = document.createElement('div');
+    notice.id = 'app-notice';
+    notice.setAttribute('role', 'status');
+    notice.setAttribute('aria-live', 'polite');
+    document.body.appendChild(notice);
+  }
+  notice.textContent = message;
+  notice.classList.toggle('error', isError);
+  notice.classList.add('visible');
+  clearTimeout(showAppNotice.timeout);
+  showAppNotice.timeout = setTimeout(() => notice.classList.remove('visible'), 5000);
+}
+
+function showAuthMessage(message, isError = false) {
+  const messageEl = document.getElementById('auth-message');
+  if (messageEl) {
+    messageEl.textContent = message;
+    messageEl.classList.toggle('error', isError);
+    messageEl.hidden = !message;
+  }
+}
+
 // --- INTERACTIVE AUTHENTICATION MODAL FUNCTIONS ---
 function openAuthModal(e, tab) {
   if (e) e.preventDefault();
@@ -47,6 +116,7 @@ function openAuthModal(e, tab) {
   if (modal) {
     modal.classList.add('active');
     switchAuthTab(tab);
+    showAuthMessage(supabaseClient ? '' : 'Configure your Supabase project to enable accounts.', !supabaseClient);
   }
 }
 function toggleAuthModal() {
@@ -62,164 +132,253 @@ function switchAuthTab(type) {
   const formLogin = document.getElementById('form-login');
   const formSignup = document.getElementById('form-signup');
   const formForgot = document.getElementById('form-forgot');
+  const formReset = document.getElementById('form-reset');
+  const tabs = document.querySelector('.auth-tabs');
+  const socialAuth = document.getElementById('social-auth');
 
   if (tabLogin) tabLogin.classList.toggle('active', type === 'login');
   if (tabSignup) tabSignup.classList.toggle('active', type === 'signup');
   if (formLogin) formLogin.classList.toggle('active', type === 'login');
   if (formSignup) formSignup.classList.toggle('active', type === 'signup');
   if (formForgot) formForgot.classList.toggle('active', type === 'forgot');
+  if (formReset) formReset.classList.toggle('active', type === 'reset');
+  if (tabs) tabs.style.display = type === 'reset' ? 'none' : '';
+  if (socialAuth) socialAuth.hidden = !['login', 'signup'].includes(type);
+  showAuthMessage('');
 }
-function handleAuthSubmit(e) {
+
+async function signInWithProvider(provider) {
+  if (provider !== 'google') return;
+  const buttons = document.querySelectorAll('#social-auth button');
+  buttons.forEach(button => { button.disabled = true; });
+  showAuthMessage('Redirecting to Google...');
+
+  try {
+    const client = await getSupabaseClient();
+    const { error } = await client.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: window.location.origin }
+    });
+    if (error) throw error;
+  } catch (error) {
+    showAuthMessage(error.message || 'Could not sign in with Google. Please try again.', true);
+    buttons.forEach(button => { button.disabled = false; });
+  }
+}
+
+async function handleAuthSubmit(e) {
   e.preventDefault();
   const form = e.target;
-  const emailInput = form.querySelector('input[type="email"]');
-  const email = emailInput ? emailInput.value.trim() : '';
-  // try to capture a name if this is the signup form
-  const nameInput = form.querySelector('input[type="text"]');
-  const name = nameInput ? nameInput.value.trim() : '';
+  const email = form.querySelector('input[type="email"]').value.trim();
+  const password = form.querySelector('input[type="password"]').value;
+  const submitButton = form.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+  showAuthMessage('Connecting securely...');
 
-  if (!email) {
-    alert('Please provide an email address.');
+  try {
+    const client = await getSupabaseClient();
+    if (form.id === 'form-signup') {
+      const name = form.querySelector('input[name="name"]').value.trim().slice(0, 100);
+      const { data, error } = await client.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name: name } }
+      });
+      if (error) throw error;
+      if (data.session) {
+        showAuthMessage('Account created successfully.');
+        toggleAuthModal();
+      } else {
+        switchAuthTab('login');
+        showAuthMessage('Account created. Check your email to confirm your address, then log in.');
+      }
+    } else {
+      const { error } = await client.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      showAuthMessage('');
+      toggleAuthModal();
+    }
+  } catch (error) {
+    showAuthMessage(error.message || 'Authentication failed. Please try again.', true);
+  } finally {
+    submitButton.disabled = false;
+  }
+}
+async function handleForgotPassword(e) {
+  e.preventDefault();
+  const email = e.target.querySelector('input[type="email"]').value.trim();
+  try {
+    const client = await getSupabaseClient();
+    const { error } = await client.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin
+    });
+    if (error) throw error;
+    showAuthMessage('If an account exists for that email, a password reset link has been sent.');
+    e.target.reset();
+  } catch (error) {
+    showAuthMessage(error.message || 'Could not send the reset email. Please try again.', true);
+  }
+}
+
+async function handlePasswordUpdate(e) {
+  e.preventDefault();
+  const password = e.target.querySelector('input[name="password"]').value;
+  const confirmation = e.target.querySelector('input[name="password-confirm"]').value;
+  if (password !== confirmation) {
+    showAuthMessage('The passwords do not match.', true);
     return;
   }
-
-  const user = { email };
-  if (name) user.name = name;
-
-  loginUser(user);
-  toggleAuthModal();
-}
-function handleForgotPassword(e) {
-  e.preventDefault();
-  const emailInput = e.target.querySelector('input[type="email"]');
-  const email = emailInput ? emailInput.value : '';
-  alert('A password reset link has been dispatched to ' + email + '.');
-  console.log('Password reset requested for:', email);
-  switchAuthTab('login');
-  e.target.reset();
-}
-
-// --- SIMPLE MOCK AUTH HELPERS (localStorage) ---
-function loginUser(user) {
+  const submitButton = e.target.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
   try {
-    localStorage.setItem('fitnovaUser', JSON.stringify(user));
-  } catch (err) {
-    console.error('Failed to persist user to localStorage', err);
+    const client = await getSupabaseClient();
+    const { error } = await client.auth.updateUser({ password });
+    if (error) throw error;
+    e.target.reset();
+    showAuthMessage('Your password has been updated.');
+    toggleAuthModal();
+  } catch (error) {
+    showAuthMessage(error.message || 'Could not update your password.', true);
+  } finally {
+    submitButton.disabled = false;
   }
-  console.log('User logged in:', user);
-  renderAuthState();
 }
 
-function logoutUser() {
-  localStorage.removeItem('fitnovaUser');
-  console.log('User logged out');
-  renderAuthState();
+function getUserDisplayName(user) {
+  return user.user_metadata && user.user_metadata.full_name
+    ? user.user_metadata.full_name
+    : user.email.split('@')[0];
 }
 
-function renderAuthState() {
+async function logoutUser() {
+  if (!supabaseClient) return;
+  const { error } = await supabaseClient.auth.signOut();
+  if (error) {
+    showAppNotice(error.message || 'Could not sign out.', true);
+  }
+}
+
+function renderAuthState(user = currentUser) {
   const navBtn = document.querySelector('.nav-cta');
-  let user = null;
-  try {
-    user = JSON.parse(localStorage.getItem('fitnovaUser'));
-  } catch (err) {
-    user = null;
-  }
-
   if (navBtn) {
     if (user && user.email) {
-      const shortName = user.name ? user.name.split(' ')[0] : user.email.split('@')[0];
-      navBtn.textContent = `Hi, ${shortName}`;
-      navBtn.onclick = (e) => { e.preventDefault(); logoutUser(); };
+      navBtn.textContent = `Hi, ${getUserDisplayName(user).split(' ')[0]} · LOG OUT`;
+      navBtn.onclick = async (e) => { e.preventDefault(); await logoutUser(); };
     } else {
       navBtn.textContent = 'Login / Join';
       navBtn.onclick = (e) => openAuthModal(e, 'login');
     }
   }
-  // update on-screen debug status
-  try {
-    const statusEl = _ensureAuthStatusEl();
-    if (user && user.email) {
-      statusEl.textContent = `Signed in: ${user.email}`;
-    } else {
-      statusEl.textContent = `Signed out`;
-    }
-  } catch (err) {
-    console.error('Failed to update auth status UI', err);
+}
+
+function clearFitnessState() {
+  fitnessData = { profile: null, workout: null };
+  activeWorkout = null;
+  setUnit('metric');
+  document.getElementById('dash-age').value = '25';
+  document.getElementById('dash-gender').value = 'male';
+  document.getElementById('dash-activity').value = '1.375';
+  document.getElementById('diet-weight').value = '';
+  document.getElementById('diet-height').value = '';
+  const workoutList = document.getElementById('workout-list');
+  if (workoutList) workoutList.innerHTML = '';
+  document.getElementById('workout-output').style.display = 'none';
+  document.getElementById('workout-placeholder').style.display = 'block';
+  document.getElementById('workout-result-box').classList.remove('has-content');
+  document.getElementById('workout-logged-target').textContent = '0';
+  selectWorkoutGoal('lose');
+  selectWorkoutEquipment('bodyweight');
+}
+
+async function saveFitnessData(patch) {
+  if (!currentUser || !supabaseClient) return;
+  fitnessData = { ...fitnessData, ...patch };
+  const snapshot = {
+    user_id: currentUser.id,
+    profile: fitnessData.profile || {},
+    workout: fitnessData.workout,
+    updated_at: new Date().toISOString()
+  };
+  fitnessDataWrite = fitnessDataWrite.catch(() => {}).then(async () => {
+    const { error } = await supabaseClient.from('fitness_data').upsert(snapshot, { onConflict: 'user_id' });
+    if (error) throw error;
+  });
+  return fitnessDataWrite;
+}
+
+async function loadFitnessData(user) {
+  const client = await getSupabaseClient();
+  const { data, error } = await client
+    .from('fitness_data')
+    .select('profile, workout')
+    .eq('user_id', user.id)
+    .maybeSingle();
+  if (error) throw error;
+  if (currentUser && currentUser.id !== user.id) return;
+
+  fitnessData = data || { profile: null, workout: null };
+  if (fitnessData.profile) {
+    const profile = fitnessData.profile;
+    if (profile.unit) setUnit(profile.unit);
+    if (profile.height) document.getElementById('dash-height').value = profile.height;
+    if (profile.weight) document.getElementById('dash-weight').value = profile.weight;
+    if (profile.age) document.getElementById('dash-age').value = profile.age;
+    if (profile.gender) document.getElementById('dash-gender').value = profile.gender;
+    if (profile.activity) document.getElementById('dash-activity').value = profile.activity;
+    if (profile.weightKg) document.getElementById('diet-weight').value = profile.weightKg;
+    if (profile.heightCm) document.getElementById('diet-height').value = profile.heightCm;
+  }
+  if (fitnessData.workout) {
+    activeWorkout = fitnessData.workout;
+    renderWorkout(activeWorkout);
   }
 }
 
-// --- FIREBASE GOOGLE SIGN-IN (optional real OAuth) ---
-async function signInWithGoogle() {
-  if (!window._firebaseReady || !window.firebase || !firebase.auth) {
-    alert('Firebase not configured. Open console for instructions.');
-    console.warn('Attempted Google sign-in but Firebase not ready.');
+async function initializeAuth() {
+  let client;
+  try {
+    client = await getSupabaseClient();
+  } catch (error) {
+    renderAuthState(null);
+    if (!/not configured|Connect Supabase/i.test(error.message)) showAppNotice(error.message, true);
     return;
   }
-
-  const provider = new firebase.auth.GoogleAuthProvider();
-  try {
-    const result = await firebase.auth().signInWithPopup(provider);
-    const fbUser = result.user;
-    if (fbUser) {
-      const user = { email: fbUser.email, name: fbUser.displayName, uid: fbUser.uid, photoURL: fbUser.photoURL };
-      loginUser(user);
-      console.log('Firebase Google sign-in success:', user);
+  client.auth.onAuthStateChange((event, session) => {
+    const previousUserId = currentUser && currentUser.id;
+    currentUser = session ? session.user : null;
+    renderAuthState();
+    if (event === 'PASSWORD_RECOVERY') {
+      document.getElementById('authOverlay').classList.add('active');
+      switchAuthTab('reset');
+      showAuthMessage('Choose a new password for your account.');
     }
-  } catch (err) {
-    console.error('Google sign-in failed', err);
-    alert('Google sign-in failed: ' + (err && err.message ? err.message : err));
+    if (!currentUser) {
+      if (previousUserId) clearFitnessState();
+    } else if (event === 'SIGNED_IN' || previousUserId !== currentUser.id) {
+      if (previousUserId !== currentUser.id) clearFitnessState();
+      loadFitnessData(currentUser).catch(error => {
+        showAppNotice(error.message || 'Could not load your saved fitness data.', true);
+      });
+    }
+  });
+
+  const { data, error } = await client.auth.getSession();
+  if (error) throw error;
+  const sessionUser = data.session ? data.session.user : null;
+  if ((currentUser && currentUser.id) !== (sessionUser && sessionUser.id)) {
+    if (currentUser || sessionUser) clearFitnessState();
+    currentUser = sessionUser;
+    if (currentUser) await loadFitnessData(currentUser);
+  } else {
+    currentUser = sessionUser;
   }
-}
-
-// Wire Google button if present
-try {
-  const gbtn = document.getElementById('googleSignBtn');
-  if (gbtn) gbtn.addEventListener('click', signInWithGoogle);
-} catch (err) {
-  console.error('Failed to attach Google button handler', err);
-}
-
-// Listen to Firebase auth state changes (if Firebase present)
-try {
-  if (window.firebase && firebase.auth) {
-    firebase.auth().onAuthStateChanged(user => {
-      if (user) {
-        loginUser({ email: user.email, name: user.displayName, uid: user.uid, photoURL: user.photoURL });
-      } else {
-        renderAuthState();
-      }
-    });
-  }
-} catch (err) {
-  console.warn('Auth state listener not attached (Firebase missing).', err);
-}
-
-// Initialize auth state on load
-// Ensure auth state is rendered now (script is loaded with defer)
-try {
   renderAuthState();
-} catch (err) {
-  console.error('renderAuthState failed on init', err);
 }
 
-// Small on-screen auth status for quick debugging
-function _ensureAuthStatusEl() {
-  let el = document.getElementById('authStatus');
-  if (el) return el;
-  el = document.createElement('div');
-  el.id = 'authStatus';
-  el.style.position = 'fixed';
-  el.style.bottom = '12px';
-  el.style.right = '12px';
-  el.style.background = 'rgba(0,0,0,0.6)';
-  el.style.color = '#fff';
-  el.style.padding = '8px 10px';
-  el.style.borderRadius = '8px';
-  el.style.fontSize = '12px';
-  el.style.zIndex = 9999;
-  document.body.appendChild(el);
-  return el;
-}
+initializeAuth().catch(error => {
+  renderAuthState(null);
+  showAppNotice(error.message || 'Could not initialize Supabase authentication.', true);
+});
 
 // --- MOBILE NAVIGATION TOGGLE ---
 function toggleMobileNav() {
@@ -481,6 +640,20 @@ function calculateDashboard() {
     document.getElementById('dash-scale-container').style.display = 'none';
     document.getElementById('dash-table-container').style.display = 'none';
   }
+
+  const profile = {
+    unit: activeUnit,
+    height: h,
+    weight: w,
+    age: document.getElementById('dash-age').value,
+    gender: document.getElementById('dash-gender').value,
+    activity: document.getElementById('dash-activity').value,
+    weightKg: Math.round(weightKg),
+    heightCm: Math.round(heightCm)
+  };
+  saveFitnessData({ profile }).catch(error => {
+    showAppNotice(error.message || 'Could not save your health profile.', true);
+  });
 }
 
 // --- DYNAMIC WORKOUT GENERATOR ---
@@ -805,7 +978,25 @@ function generateWorkout() {
     specs: `${activeCool.reps} | Time: ${activeCool.time}`
   });
   
-  // Update HTML UI
+  activeWorkout = { goal, equipment: eq, level, duration: dur, routine, completed: [] };
+  renderWorkout(activeWorkout);
+  saveFitnessData({ workout: activeWorkout }).catch(error => {
+    showAppNotice(error.message || 'Could not save your workout.', true);
+  });
+}
+
+function renderWorkout(workout) {
+  selectedWorkoutGoal = workout.goal;
+  selectedWorkoutEquipment = workout.equipment;
+  document.getElementById('workout-level').value = workout.level;
+  document.getElementById('workout-duration').value = workout.duration;
+  document.querySelectorAll('#workout-goal-select .workout-card-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.goal === workout.goal);
+  });
+  document.querySelectorAll('#workout-eq-select .workout-card-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.eq === workout.equipment);
+  });
+
   document.getElementById('workout-placeholder').style.display = 'none';
   const outBlock = document.getElementById('workout-output');
   outBlock.style.display = 'block';
@@ -813,31 +1004,28 @@ function generateWorkout() {
   
   // Populate summaries
   let goalLbl = "Fat Loss";
-  if (goal === 'gain') goalLbl = "Muscle Building";
-  else if (goal === 'endurance') goalLbl = "Endurance Blaze";
-  else if (goal === 'mobility') goalLbl = "Mobility Flow";
-  
-  let eqLbl = "Bodyweight Focus";
-  if (eq === 'minimal') eqLbl = "Dumbbells Only";
-  else if (eq === 'gym') eqLbl = "Full Gym Access";
+  if (workout.goal === 'gain') goalLbl = "Muscle Building";
+  else if (workout.goal === 'endurance') goalLbl = "Endurance Blaze";
+  else if (workout.goal === 'mobility') goalLbl = "Mobility Flow";
   
   document.getElementById('workout-title-display').textContent = `Custom ${goalLbl}`;
-  document.getElementById('workout-desc-display').textContent = `Targeted routine optimized for your ${level} fitness level. Check items as you train.`;
+  document.getElementById('workout-desc-display').textContent = `Targeted routine optimized for your ${workout.level} fitness level. Check items as you train.`;
   
-  document.getElementById('workout-time-target').textContent = dur + 'm';
-  document.getElementById('workout-eq-target').textContent = eq === 'bodyweight' ? 'None' : (eq === 'minimal' ? 'DBs' : 'Gym');
-  document.getElementById('workout-ex-target').textContent = routine.length;
+  document.getElementById('workout-time-target').textContent = workout.duration + 'm';
+  document.getElementById('workout-eq-target').textContent = workout.equipment === 'bodyweight' ? 'None' : (workout.equipment === 'minimal' ? 'DBs' : 'Gym');
+  document.getElementById('workout-ex-target').textContent = workout.routine.length;
   
   // Render step cards
   const listContainer = document.getElementById('workout-list');
   listContainer.innerHTML = '';
   
-  routine.forEach((step, idx) => {
+  workout.routine.forEach((step, idx) => {
     const card = document.createElement('div');
-    card.className = 'workout-step-card';
+    const completed = workout.completed.includes(idx);
+    card.className = `workout-step-card${completed ? ' completed' : ''}`;
     card.innerHTML = `
       <div class="workout-chk-wrapper">
-        <input type="checkbox" id="work-chk-${idx}" onchange="toggleWorkoutStep(${idx}, this.checked)">
+        <input type="checkbox" id="work-chk-${idx}" onchange="toggleWorkoutStep(${idx}, this.checked)"${completed ? ' checked' : ''}>
         <div class="workout-chk-custom"></div>
       </div>
       <div class="workout-step-info">
@@ -850,8 +1038,7 @@ function generateWorkout() {
     listContainer.appendChild(card);
   });
   
-  // Reset logged count
-  document.getElementById('workout-logged-target').textContent = "0";
+  document.getElementById('workout-logged-target').textContent = workout.completed.length;
   
   refreshCursorListeners();
   observeElements();
@@ -871,6 +1058,14 @@ function toggleWorkoutStep(idx, isChecked) {
   });
   
   document.getElementById('workout-logged-target').textContent = checkedCount;
+  if (activeWorkout) {
+    activeWorkout.completed = Array.from(checkboxes)
+      .map((checkbox, index) => checkbox.checked ? index : -1)
+      .filter(index => index >= 0);
+    saveFitnessData({ workout: activeWorkout }).catch(error => {
+      showAppNotice(error.message || 'Could not save workout progress.', true);
+    });
+  }
 }
 
 // --- DYNAMIC DIET PLANNER & RECIPE MODAL ENGINE ---
@@ -1241,8 +1436,10 @@ function locateUser() {
 }
 
 function fetchNearbyPlaces() {
-  const radius = 3000;
-  const q = '[out:json][timeout:25];('
+  const radius = 5000; // extended to 5km for better results
+  const status = document.getElementById('gyms-status');
+
+  const q = '[out:json][timeout:30];('
     + 'node["leisure"="fitness_centre"](around:' + radius + ',' + userLat + ',' + userLng + ');'
     + 'node["sport"="yoga"](around:' + radius + ',' + userLat + ',' + userLng + ');'
     + 'node["leisure"="sports_centre"](around:' + radius + ',' + userLat + ',' + userLng + ');'
@@ -1251,18 +1448,76 @@ function fetchNearbyPlaces() {
     + 'node["sport"="running"](around:' + radius + ',' + userLat + ',' + userLng + ');'
     + 'node["highway"="cycleway"](around:' + radius + ',' + userLat + ',' + userLng + ');'
     + 'node["sport"="cycling"](around:' + radius + ',' + userLat + ',' + userLng + ');'
+    + 'node["amenity"="gym"](around:' + radius + ',' + userLat + ',' + userLng + ');'
     + 'way["leisure"="fitness_centre"](around:' + radius + ',' + userLat + ',' + userLng + ');'
     + 'way["leisure"="sports_centre"](around:' + radius + ',' + userLat + ',' + userLng + ');'
     + 'way["leisure"="park"](around:' + radius + ',' + userLat + ',' + userLng + ');'
-    + 'way["highway"="cycleway"](around:' + radius + ',' + userLat + ',' + userLng + ');'
-    + ');out center 25;';
-    
-  fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: 'data=' + encodeURIComponent(q) })
-    .then(r => r.json())
-    .then(data => processPlaces(data.elements))
-    .catch(() => {
-      document.getElementById('gyms-status').textContent = 'Could not load fitness locations from Overpass API. Try again.';
-    });
+    + 'way["amenity"="gym"](around:' + radius + ',' + userLat + ',' + userLng + ');'
+    + ');out center 30;';
+
+  // Multiple Overpass mirrors to try in order
+  const mirrors = [
+    'https://overpass-api.de/api/interpreter',
+    'https://overpass.kumi.systems/api/interpreter',
+    'https://maps.mail.ru/osm/tools/overpass/api/interpreter'
+  ];
+
+  function tryMirror(index) {
+    if (index >= mirrors.length) {
+      // All mirrors failed — show simulated nearby results as fallback
+      showSimulatedPlaces();
+      return;
+    }
+    status.textContent = 'Searching nearby spaces' + (index > 0 ? ' (retry ' + index + ')...' : '...');
+    fetch(mirrors[index], {
+      method: 'POST',
+      body: 'data=' + encodeURIComponent(q),
+      signal: AbortSignal.timeout(12000)
+    })
+      .then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(data => {
+        if (data && data.elements) {
+          processPlaces(data.elements);
+        } else {
+          throw new Error('Empty response');
+        }
+      })
+      .catch(() => tryMirror(index + 1));
+  }
+
+  tryMirror(0);
+}
+
+function showSimulatedPlaces() {
+  // Fallback: show placeholder cards with Google Maps links for common searches near user
+  const status = document.getElementById('gyms-status');
+  status.textContent = 'Live data unavailable. Showing nearby search links instead.';
+
+  const searches = [
+    { name: 'Gyms near you', type: 'gym', q: 'gym near me' },
+    { name: 'Yoga Studios near you', type: 'yoga', q: 'yoga studio near me' },
+    { name: 'Swimming Pools near you', type: 'pool', q: 'swimming pool near me' },
+    { name: 'Parks near you', type: 'park', q: 'park near me' },
+    { name: 'Sports Centres near you', type: 'sport', q: 'sports centre near me' },
+    { name: 'Running Tracks near you', type: 'running', q: 'running track near me' },
+    { name: 'Cycling Paths near you', type: 'cycling', q: 'cycling path near me' }
+  ];
+
+  allPlaces = searches.map(s => ({
+    name: s.name,
+    addr: 'Tap to search on Google Maps',
+    lat: userLat,
+    lon: userLng,
+    dist: 0,
+    type: s.type,
+    tags: {},
+    mapsQuery: s.q + '&near=' + userLat + ',' + userLng
+  }));
+
+  renderPlacesCards();
 }
 
 function haversine(lat1, lon1, lat2, lon2) {
@@ -1346,26 +1601,45 @@ function renderPlacesCards() {
   empty.style.display = 'none';
   
   filtered.forEach((p, i) => {
-    const dist = p.dist < 1 ? Math.round(p.dist * 1000) + ' m' : p.dist.toFixed(1) + ' km';
-    const url = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p.name + ' ' + p.addr);
-    const rating = (4.0 + Math.random() * 0.9).toFixed(1);
+    const dist = p.dist < 0.05 ? '' : (p.dist < 1 ? Math.round(p.dist * 1000) + ' m away' : p.dist.toFixed(1) + ' km away');
+    const url = p.mapsQuery
+      ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p.mapsQuery)
+      : 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p.name + ' ' + p.addr);
     const card = document.createElement('div');
     card.className = 'gym-card visible';
     card.style.opacity = '0';
     card.style.transform = 'translateY(20px)';
     card.style.transition = 'opacity 0.4s ease ' + (i * 0.05) + 's, transform 0.4s ease ' + (i * 0.05) + 's';
     
-    card.innerHTML = `
-      <div class="gym-card-type">${getTypeLabel(p.type)}</div>
-      <div class="gym-card-name">${p.name}</div>
-      <div class="gym-card-addr">${p.addr || 'Nearby location'}</div>
-      <div class="gym-card-meta">
-        <span class="gym-rating">★ ${rating}</span>
-        <span>${p.tags.opening_hours || 'Hours vary'}</span>
-        <span class="gym-dist">${dist}</span>
-      </div>
-      <a href="${url}" target="_blank" class="gyms-map-link">View on Google Maps →</a>
-    `;
+    const type = document.createElement('div');
+    type.className = 'gym-card-type';
+    type.textContent = getTypeLabel(p.type);
+    const name = document.createElement('div');
+    name.className = 'gym-card-name';
+    name.textContent = p.name;
+    const address = document.createElement('div');
+    address.className = 'gym-card-addr';
+    address.textContent = p.addr || 'Nearby location';
+    const meta = document.createElement('div');
+    meta.className = 'gym-card-meta';
+    if (p.tags && p.tags.opening_hours) {
+      const hours = document.createElement('span');
+      hours.textContent = p.tags.opening_hours;
+      meta.appendChild(hours);
+    }
+    if (dist) {
+      const distance = document.createElement('span');
+      distance.className = 'gym-dist';
+      distance.textContent = dist;
+      meta.appendChild(distance);
+    }
+    const mapLink = document.createElement('a');
+    mapLink.href = url;
+    mapLink.target = '_blank';
+    mapLink.rel = 'noopener noreferrer';
+    mapLink.className = 'gyms-map-link';
+    mapLink.textContent = 'View on Google Maps →';
+    card.append(type, name, address, meta, mapLink);
     grid.appendChild(card);
     setTimeout(() => {
       card.style.opacity = '1';

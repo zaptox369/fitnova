@@ -1,98 +1,58 @@
-# ⚡ FitNova — Holistic Fitness & Wellness Ecosystem
+# FitNova
 
-> An all-in-one modern fitness web platform uniting personalized workout generation, macro & TDEE nutrition planning, guided mindfulness, and real-time nearby facility discovery into a high-performance, responsive experience.
+FitNova is a responsive fitness and wellness web app with Supabase authentication and PostgreSQL persistence. Members can create accounts, save a health profile, and keep their generated workout and completion progress across devices.
 
-[![Vercel Deployment](https://img.shields.io/badge/Live%20Demo-Vercel-black?style=for-the-badge&logo=vercel)](https://fitnova-sepia.vercel.app)
-[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
-[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
-[![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-[![OpenStreetMap](https://img.shields.io/badge/OpenStreetMap-Overpass_API-7EBC6F?style=for-the-badge&logo=openstreetmap&logoColor=white)](https://wiki.openstreetmap.org/wiki/Overpass_API)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+## Features
 
-🌐 **Live Production App**: **[https://fitnova-sepia.vercel.app](https://fitnova-sepia.vercel.app)**
+- Email and password sign up, sign in, password recovery, and password updates through Supabase Auth.
+- User-scoped health profiles and workout progress stored in PostgreSQL with row-level security (RLS).
+- BMI, BMR, TDEE, nutrition planning, guided breathing, and nearby facility discovery.
+- Static HTML/CSS/JavaScript frontend with a small Vercel serverless endpoint for deployment configuration.
 
----
+## Stack
 
-## 🌟 Key Features
+- HTML, CSS, and vanilla JavaScript
+- [Supabase Auth and PostgreSQL](https://supabase.com/docs)
+- [Vercel Functions](https://vercel.com/docs/functions) for runtime public configuration
+- OpenStreetMap Overpass API for nearby facilities
 
-| Module | Description | Technical Implementation |
-| :--- | :--- | :--- |
-| **🏋️ Dynamic Workout Generator** | Tailored multi-tiered routine generator by fitness goal, equipment (bodyweight, dumbbells, full gym), and difficulty level. | Interactive state machine with step-by-step rep tracking and persistent progress checkboxes. |
-| **📊 Health Metrics Dashboard** | Precision metabolic calculators for Body Mass Index (BMI), Basal Metabolic Rate (BMR), and Total Daily Energy Expenditure (TDEE). | Dual Metric/Imperial conversions, Mifflin-St Jeor formula, and visual needle gauge rendering. |
-| **🥗 Nutrition & Macro Planner** | Personalized calorie and macronutrient breakdown (carbs, proteins, fats) based on user goals (Fat Loss, Maintenance, Muscle Gain). | Dynamic recipe modal with dietary filtering (Vegan, Vegetarian, Keto, Balanced). |
-| **🧘 4-7-8 Guided Breathwork** | Guided respiratory mindfulness bubble pacing users through inhale (4s), hold (7s), and exhale (8s) rhythms. | Synchronized SVG/CSS keyframe animation loops and real-time cycle countdowns. |
-| **📍 Geolocation Fitness Finder** | Locates nearby gyms, yoga studios, sports centers, swimming pools, and running paths within 5 km. | HTML5 Geolocation + OpenStreetMap Overpass Turbo API + Haversine distance algorithm. |
-| **🤖 Legend AI Coaching Bot** | Interactive floating consultation assistant providing instant guidance on workout splits, pricing, and nutrition. | Responsive floating chat widget with instant keyword intent mapping and quick prompt chips. |
-| **💧 Hydration Tracker** | Daily water intake monitor with incremental glass tracking and localStorage state persistence. | Real-time percentage progress bar and persistent client-side storage. |
+## Local setup
 
----
+1. Create a Supabase project.
+2. Run [`supabase/schema.sql`](supabase/schema.sql) in that project's SQL Editor. It creates the fitness table, RLS policies, grants, JSON shape checks, and timestamp trigger. It is safe to run again after the initial setup.
+3. For local development, set `FITNOVA_SUPABASE_URL` in [`supabase-config.js`](supabase-config.js) to the Project URL (for example, `https://your-project-ref.supabase.co`) and `FITNOVA_SUPABASE_ANON_KEY` to the publishable key from **Project Settings → API**. The publishable key is designed to be public; never put a `service_role` or secret key in browser code.
+4. In **Authentication → URL Configuration**, set the Site URL and allow the local callback URL, such as `http://localhost:3000/**`.
+5. Serve the project over HTTP. For example:
 
-## 🛠️ Architecture & Tech Stack
+   ```bash
+   python -m http.server 3000
+   ```
 
-```
-fitnova/
-├── index.html        # Semantic HTML5 structure with Open Graph & SEO metadata
-├── fitness.css       # Custom design system, orbital backgrounds, glassmorphism & responsive drawer
-├── fitness.js        # Engine for workout generation, health formulas, Overpass API & AI assistant
-├── vercel.json       # Vercel deployment headers, security policies & clean routing
-└── README.md         # Documentation & project overview
-```
+   Then open `http://localhost:3000`. The local config file supplies Supabase settings; `/api/config` is available on Vercel deployments and through the Vercel development server.
+6. Register through **LOGIN / JOIN**. If email confirmation is enabled, confirm the email before signing in.
 
-* **Core Languages**: HTML5, CSS3, JavaScript (ES6+)
-* **APIs & Web Standards**:
-  * [OpenStreetMap Overpass API](https://overpass-api.de/) for spatial leisure & sport facility querying
-  * HTML5 `navigator.geolocation` for coordinate detection
-  * Google Maps Search API integration for one-click turn-by-turn navigation
-* **Mathematical Models & Algorithms**:
-  * **Haversine Formula**: Calculates great-circle distance between user coordinates and queried fitness centers
-  * **Mifflin-St Jeor Equation**: Computes baseline resting metabolic rate (BMR)
-* **Design & Aesthetics**:
-  * Bespoke dark theme with CSS glassmorphism, orbital ambient particle rings, and responsive mobile drawer navigation
-  * Google Fonts: *Bebas Neue* & *DM Sans*
+## Deploy to Vercel
 
----
+1. Import the repository into Vercel.
+2. In the project's **Settings → Environment Variables**, add `FITNOVA_SUPABASE_URL` and `FITNOVA_SUPABASE_ANON_KEY` for each environment (Production, Preview, and Development as needed). Use the Supabase Project URL and its publishable key. The `/api/config` function returns only these public client settings; it never reads or returns a service-role key.
+3. Redeploy after changing environment variables.
+4. In Supabase **Authentication → URL Configuration**, set the production site URL and allow the Vercel production and preview callback URLs.
+5. Confirm that `supabase/schema.sql` has been applied to the same Supabase project.
 
-## 🚀 Getting Started
+## Google sign-in
 
-### 1. Clone the Repository
-```bash
-git clone https://github.com/zaptox369/fitnova.git
-cd fitnova
+The login modal uses Supabase OAuth for Google. Enable and configure Google under **Supabase → Authentication → Sign In / Providers** before using its button. The provider callback URI for this project is:
+
+```text
+https://cacgoiiaeeusjwruagli.supabase.co/auth/v1/callback
 ```
 
-### 2. Run Locally
-FitNova is built purely with vanilla web technologies, requiring zero build steps or heavy node modules:
+For Google, create a **Web application** OAuth client in Google Cloud Console. Add the `openid` scope in the consent configuration if it is not already enabled. Add `https://fitnova-sepia.vercel.app` as an authorized JavaScript origin and the callback URI above as an authorized redirect URI. Enter the Google client ID and secret in the Supabase Google provider settings.
 
-* Simply open `index.html` in any modern web browser:
-  ```bash
-  # Windows
-  start index.html
+In **Supabase → Authentication → URL Configuration**, set the Site URL to `https://fitnova-sepia.vercel.app` and add `https://fitnova-sepia.vercel.app/**` to the allowed redirect URLs. Use your actual production domain if it differs. Keep provider client secrets only in Supabase; never put them in Vercel frontend variables or browser code. After configuring providers, deploy the updated frontend to Vercel.
 
-  # macOS
-  open index.html
+## Data and security
 
-  # Linux
-  xdg-open index.html
-  ```
-* Or serve locally via Python / Live Server:
-  ```bash
-  python -m http.server 3000
-  ```
-  Then navigate to `http://localhost:3000`.
+`public.fitness_data` stores one profile and the current workout per authenticated user. RLS policies scope reads and writes to `auth.uid()`, and anonymous users have no table privileges. PostgreSQL checks require profile and workout values to be JSON objects, and the update trigger maintains `updated_at`. The browser publishable key is public by design; access to user rows is enforced by RLS. Never expose Supabase secret or service-role keys.
 
----
-
-## ☁️ Deployment
-
-FitNova is optimized for instant deployment on [Vercel](https://vercel.com):
-
-```bash
-# Deploy to production via Vercel CLI
-npx vercel --prod
-```
-
----
-
-## 📄 License
-
-This project is open-source and available under the [MIT License](LICENSE).
+Vercel applies content-type, framing, referrer, transport-security, and browser-permission headers. The location finder requests geolocation only after a user action. Facility data comes from public OpenStreetMap endpoints and may be unavailable or incomplete.
