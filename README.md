@@ -19,7 +19,7 @@ FitNova is a responsive fitness and wellness web app with Supabase authenticatio
 ## Local setup
 
 1. Create a Supabase project.
-2. Run [`supabase/schema.sql`](supabase/schema.sql) in that project's SQL Editor. It creates the fitness table, RLS policies, grants, JSON shape checks, and timestamp trigger. It is safe to run again after the initial setup.
+2. Run [`supabase/schema.sql`](supabase/schema.sql) in that project's SQL Editor. It creates the fitness table, forced row-level security, per-user policies, restricted grants, JSON shape and size checks, and a server-managed timestamp trigger. It is safe to run again after the initial setup.
 3. For local development, set `FITNOVA_SUPABASE_URL` in [`supabase-config.js`](supabase-config.js) to the Project URL (for example, `https://your-project-ref.supabase.co`) and `FITNOVA_SUPABASE_ANON_KEY` to the publishable key from **Project Settings → API**. The publishable key is designed to be public; never put a `service_role` or secret key in browser code.
 4. In **Authentication → URL Configuration**, set the Site URL and allow the local callback URL, such as `http://localhost:3000/**`.
 5. Serve the project over HTTP. For example:
@@ -53,6 +53,6 @@ In **Supabase → Authentication → URL Configuration**, set the Site URL to `h
 
 ## Data and security
 
-`public.fitness_data` stores one profile and the current workout per authenticated user. RLS policies scope reads and writes to `auth.uid()`, and anonymous users have no table privileges. PostgreSQL checks require profile and workout values to be JSON objects, and the update trigger maintains `updated_at`. The browser publishable key is public by design; access to user rows is enforced by RLS. Never expose Supabase secret or service-role keys.
+`public.fitness_data` stores one profile and the current workout per authenticated user. Forced RLS policies scope reads and writes to `auth.uid()`, and anonymous and public roles have no table privileges. PostgreSQL checks require profile and workout values to be JSON objects within bounded sizes, and the database owns `updated_at`. The configuration endpoint rejects secret keys and returns only a Supabase publishable (or legacy anon) key. The browser publishable key is public by design; access to user rows is enforced by RLS. Never expose Supabase secret or service-role keys.
 
 Vercel applies content-type, framing, referrer, transport-security, and browser-permission headers. The location finder requests geolocation only after a user action. Facility data comes from public OpenStreetMap endpoints and may be unavailable or incomplete.

@@ -296,8 +296,7 @@ async function saveFitnessData(patch) {
   const snapshot = {
     user_id: currentUser.id,
     profile: fitnessData.profile || {},
-    workout: fitnessData.workout,
-    updated_at: new Date().toISOString()
+    workout: fitnessData.workout
   };
   fitnessDataWrite = fitnessDataWrite.catch(() => {}).then(async () => {
     const { error } = await supabaseClient.from('fitness_data').upsert(snapshot, { onConflict: 'user_id' });
